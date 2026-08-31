@@ -1,0 +1,3387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Optimization Analytics — CAIT-Transit</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+          rel="stylesheet">
+    <style>
+        :root {
+            --ink: #000000;
+            --paper: #F5F6F8;
+            --card: #FFFFFF;
+            --slate: #6B7686;
+            --border: #E1E4EA;
+            --border-strong: #C8CDD8;
+            --scarlet: #CC0033;
+            --scarlet-hover: #99001F;
+            --radius: 10px;
+            /* dark section tokens */
+            --dark-bg: #0A0A0A;
+            --dark-card: #161616;
+            --dark-border: #2A2A2A;
+            --dark-text: #F2F2F2;
+            --dark-muted: #9A9A9A;
+            --amber: #F2994A;
+            --gold: #F2C94C;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--paper);
+            color: var(--ink);
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .workspace {
+            flex: 1;
+        }
+
+        a {
+            color: inherit;
+        }
+
+        /* ---- top nav (now black, with real CAIT lockup) ---- */
+        .topnav {
+            background: #000000;
+            border-bottom: 1px solid #1a1a1a;
+            padding: 24px 28px;
+        }
+
+        .topnav-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .brand-mark {
+            height: 40px;
+            width: auto;
+            display: block;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 26px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #b5b5b5;
+            padding-bottom: 4px;
+            border-bottom: 2px solid transparent;
+            transition: all 0.15s ease;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: #fff;
+            border-bottom-color: var(--scarlet);
+        }
+
+        .workspace {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px 28px;
+        }
+
+        .page-header {
+            margin-bottom: 10px;
+        }
+
+        .page-header h1 {
+            font-family: 'Archivo', sans-serif;
+            font-size: 28px;
+            margin: 0 0 6px;
+        }
+
+        .page-tabs {
+            display: flex;
+            background: var(--paper);
+            padding: 3px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            width: fit-content;
+            margin-bottom: 24px;
+        }
+
+        .tab-btn {
+            border: none;
+            background: transparent;
+            padding: 8px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--slate);
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .tab-btn.active {
+            background: var(--card);
+            color: var(--ink);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        /* ---- top-level module switch (Analytics vs LiDAR vs Walkthrough) ---- */
+        .module-switch {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .module-btn {
+            border: 2px solid var(--border-strong);
+            background: var(--card);
+            padding: 10px 20px;
+            border-radius: 9px;
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--slate);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .module-btn.active {
+            border-color: var(--scarlet);
+            color: var(--scarlet);
+        }
+
+        .explain-placeholder {
+            border: 1px dashed var(--border-strong);
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin-bottom: 22px;
+            color: var(--slate);
+            font-size: 13px;
+            font-style: italic;
+            background: rgba(0, 0, 0, 0.02);
+        }
+
+        /* ---- 3D scan link card ---- */
+        .scan-link-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .scan-link-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--scarlet);
+            color: #fff;
+            font-weight: 700;
+            font-size: 13.5px;
+            padding: 11px 20px;
+            border-radius: 999px;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: background 0.15s ease, transform 0.15s ease;
+        }
+
+        .scan-link-btn:hover {
+            background: var(--scarlet-hover);
+            transform: translateY(-1px);
+        }
+
+        /* ---- definitions / how-to (white, unchanged concept) ---- */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        @media (max-width: 900px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .doc-section {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+        }
+
+        .doc-section-header {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .doc-section h2 {
+            font-family: 'Archivo', sans-serif;
+            font-size: 17px;
+            margin: 0;
+        }
+
+        .doc-section-tag {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10.5px;
+            color: var(--scarlet-hover);
+            background: rgba(204, 0, 51, 0.1);
+            border: 1px solid rgba(204, 0, 51, 0.25);
+            padding: 3px 8px;
+            border-radius: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .term-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 14px;
+        }
+
+        .term-item {
+            padding: 12px;
+            background: var(--paper);
+            border-radius: 6px;
+            border-left: 3px solid transparent;
+        }
+
+        .term-item {
+            cursor: pointer;
+        }
+
+        .term-item:hover {
+            background: rgba(204, 0, 51, 0.1);
+            border-left-color: var(--scarlet);
+        }
+
+        .viz-flash {
+            box-shadow: 0 0 0 3px var(--scarlet), 0 16px 32px rgba(0, 0, 0, 0.5) !important;
+        }
+
+        .term-title {
+            font-weight: 700;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .term-desc {
+            font-size: 12.5px;
+            color: var(--slate);
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .howto-list {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .howto-list li {
+            display: flex;
+            gap: 10px;
+            font-size: 13px;
+            line-height: 1.55;
+        }
+
+        .howto-num {
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--scarlet);
+            color: #fff;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 1px;
+        }
+
+        /* ---- dark analytics section ---- */
+        .dark-fullbleed {
+            background: var(--dark-bg);
+            width: 100vw;
+            position: relative;
+            left: 50%;
+            right: 50%;
+            margin-left: -50vw;
+            margin-right: -50vw;
+            margin-bottom: 32px;
+        }
+
+        .dark-section {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 36px 28px;
+            color: var(--dark-text);
+        }
+
+        .eyebrow {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--dark-muted);
+            margin: 0 0 16px;
+        }
+
+        .dark-kpi-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 32px;
+        }
+
+        .dark-kpi-row.cols-4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        @media (max-width: 700px) {
+            .dark-kpi-row.cols-4 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .dark-kpi {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 12px;
+            padding: 18px 20px;
+            cursor: default;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+        }
+
+        .dark-kpi:hover {
+            transform: translateY(-3px) scale(1.03);
+            border-color: var(--scarlet);
+            box-shadow: 0 12px 28px rgba(204, 0, 51, 0.28);
+        }
+
+        .dark-kpi .val {
+            font-family: 'Archivo', sans-serif;
+            font-weight: 800;
+            font-size: 26px;
+            margin: 0;
+        }
+
+        .dark-kpi .lbl {
+            font-size: 12px;
+            color: var(--dark-muted);
+            margin: 4px 0 0;
+            text-transform: capitalize;
+        }
+
+        .dark-section-note {
+            font-size: 12.5px;
+            color: var(--dark-muted);
+            font-style: italic;
+            margin: 0;
+        }
+
+        /* ---- scenario selector (Min-Max tab) ---- */
+        .scenario-panel {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        @media (max-width: 900px) {
+            .scenario-panel {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .scenario-group-label {
+            font-size: 11px;
+            font-family: 'IBM Plex Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--dark-muted);
+            margin: 0 0 8px;
+        }
+
+        /* ---- policy comparison card ---- */
+        .policy-compare {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 20px;
+            align-items: center;
+        }
+
+        @media (max-width: 700px) {
+            .policy-compare {
+                grid-template-columns: 1fr;
+            }
+
+            .policy-compare .compare-arrow {
+                transform: rotate(90deg);
+            }
+        }
+
+        .compare-block {
+            background: #1c1c1c;
+            border-radius: 12px;
+            padding: 18px 20px;
+        }
+
+        .compare-block .compare-label {
+            font-size: 11px;
+            font-family: 'IBM Plex Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--dark-muted);
+            margin: 0 0 10px;
+        }
+
+        .compare-block .compare-val {
+            font-family: 'Archivo', sans-serif;
+            font-weight: 800;
+            font-size: 22px;
+            margin: 0 0 4px;
+        }
+
+        .compare-block .compare-sub {
+            font-size: 12px;
+            color: var(--dark-muted);
+            margin: 0;
+        }
+
+        .compare-arrow {
+            font-size: 24px;
+            color: var(--scarlet);
+            text-align: center;
+        }
+
+        .compare-delta {
+            margin-top: 16px;
+            padding: 12px 16px;
+            background: rgba(204, 0, 51, 0.1);
+            border: 1px solid rgba(204, 0, 51, 0.25);
+            border-radius: 8px;
+            font-size: 13px;
+            color: #fff;
+        }
+
+        .compare-delta strong {
+            color: var(--scarlet);
+        }
+
+        .viz-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .viz-grid .full {
+            grid-column: 1 / -1;
+        }
+
+        @media (max-width: 900px) {
+            .viz-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .dcard {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 14px;
+            padding: 20px;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+            cursor: default;
+        }
+
+        .dcard:hover {
+            transform: translateY(-4px) scale(1.012);
+            border-color: #3a3a3a;
+            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .dcard-title {
+            font-family: 'Archivo', sans-serif;
+            font-weight: 700;
+            font-size: 17px;
+            text-transform: capitalize;
+            letter-spacing: -0.01em;
+            margin: 0 0 4px;
+        }
+
+        .dcard-cap {
+            font-size: 12px;
+            color: var(--dark-muted);
+            margin: 0 0 16px;
+            line-height: 1.5;
+        }
+
+        /* gauge */
+        .gauge-wrap {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .gauge-center {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            top: 48px;
+        }
+
+        .gauge-center .num {
+            font-family: 'Archivo', sans-serif;
+            font-weight: 800;
+            font-size: 21px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 2px 10px;
+            border-radius: 6px;
+        }
+
+        .gauge-center .sub {
+            font-size: 9px;
+            color: var(--dark-muted);
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            margin-top: 2px;
+        }
+
+        .gauge-seg {
+            transition: stroke-width 0.15s ease, filter 0.15s ease;
+            cursor: default;
+        }
+
+        .gauge-seg:hover {
+            stroke-width: 20;
+            filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.3));
+        }
+
+        .legend-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 12.5px;
+            color: #d8d8d8;
+        }
+
+        .legend-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        /* priority distribution — pseudo-3D boxes */
+        .pbar-row {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 40px;
+            min-height: 220px;
+            padding: 30px 8px 0;
+        }
+
+        .pbar {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            height: 100%;
+            gap: 22px;
+        }
+
+        .cube-shadow {
+            width: 60%;
+            height: 8px;
+            margin: 6px auto 0;
+            background: rgba(0, 0, 0, 0.55);
+            border-radius: 50%;
+            filter: blur(2px);
+        }
+
+        .pbar-box-wrap {
+            transition: transform 0.18s ease, filter 0.18s ease;
+            cursor: default;
+            transform-origin: bottom center;
+        }
+
+        .pbar-box-wrap:hover {
+            transform: translateY(-4px) scale(1.06);
+            filter: brightness(1.2) drop-shadow(0 0 26px var(--glow, rgba(204, 0, 51, 0.65)));
+        }
+
+        .pbar .n {
+            font-family: 'Archivo', sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .pbar .l {
+            font-size: 10.5px;
+            color: var(--dark-muted);
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        /* toggle */
+        .toggle-row {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            text-align: center;
+            padding: 7px;
+            border-radius: 7px;
+            font-size: 11.5px;
+            font-weight: 600;
+            cursor: pointer;
+            background: #232323;
+            color: var(--dark-muted);
+            border: 1px solid var(--dark-border);
+        }
+
+        .toggle-btn.active {
+            background: var(--scarlet);
+            color: #fff;
+            border-color: var(--scarlet);
+        }
+
+        .storage-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 9px;
+            font-size: 12px;
+        }
+
+        .storage-bar-row .label {
+            width: 90px;
+            color: var(--dark-muted);
+            flex-shrink: 0;
+        }
+
+        .storage-bar-track {
+            flex: 1;
+            background: #2c2c2c;
+            border: 1px solid #3c3c3c;
+            border-radius: 5px;
+            height: 14px;
+            overflow: hidden;
+        }
+
+        .storage-bar-fill {
+            height: 100%;
+            background: var(--scarlet);
+            border-radius: 5px;
+        }
+
+        .storage-bar-row .n {
+            width: 28px;
+            text-align: right;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        /* filters + item cards */
+        .filter-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .dselect {
+            background: #1c1c1c;
+            border: 1.5px solid var(--scarlet);
+            color: var(--scarlet);
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 7px 12px;
+            cursor: pointer;
+        }
+
+        .dsearch {
+            background: #1c1c1c;
+            border: 1px solid var(--dark-border);
+            color: var(--dark-muted);
+            font-size: 12px;
+            border-radius: 8px;
+            padding: 7px 12px;
+            margin-left: auto;
+            min-width: 160px;
+        }
+
+        .dsearch::placeholder {
+            color: #6a6a6a;
+        }
+
+        .item-list {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .item-row {
+            background: #1c1c1c;
+            border-radius: 9px;
+            padding: 12px 16px;
+            border-left: 4px solid #444;
+            transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+            cursor: default;
+        }
+
+        .item-row:hover {
+            background: #252525;
+            transform: translateX(3px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+        }
+
+        .item-row-top {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 6px;
+            flex-wrap: wrap;
+        }
+
+        .item-row .code {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11.5px;
+            font-weight: 600;
+        }
+
+        .item-row .pill {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 9px;
+            border-radius: 10px;
+        }
+
+        .item-row .risk {
+            font-size: 10.5px;
+            font-weight: 600;
+            padding: 3px 9px;
+            border-radius: 10px;
+            margin-left: auto;
+        }
+
+        .item-row .desc {
+            font-size: 11.5px;
+            color: #cfcfcf;
+            margin-bottom: 4px;
+        }
+
+        .item-row .meta {
+            font-size: 11px;
+            color: var(--dark-muted);
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .item-count {
+            font-size: 11px;
+            color: var(--dark-muted);
+            margin-top: 10px;
+        }
+
+        /* leaderboard */
+        .lb-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            margin-bottom: 9px;
+            background: #1c1c1c;
+            transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+            cursor: default;
+        }
+
+        .lb-row:hover {
+            background: #252525;
+            transform: translateX(3px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+        }
+
+        .lb-rank {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .lb-code {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11.5px;
+            width: 96px;
+            color: #d8d8d8;
+            flex-shrink: 0;
+        }
+
+        .lb-track {
+            flex: 1;
+            background: #3a3a3a;
+            border: 1px solid #4a4a4a;
+            border-radius: 6px;
+            height: 16px;
+            overflow: hidden;
+        }
+
+        .lb-fill {
+            height: 100%;
+            border-radius: 6px;
+        }
+
+        .lb-val {
+            font-family: 'Archivo', sans-serif;
+            font-weight: 700;
+            font-size: 13.5px;
+            width: 74px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        /* priority x po-risk crosstab */
+        .crosstab-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+        }
+
+        .crosstab-table th {
+            text-align: right;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10.5px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            color: var(--dark-muted);
+            font-weight: 600;
+            padding: 0 0 10px;
+            border-bottom: 1px solid var(--dark-border);
+        }
+
+        .crosstab-table th:first-child, .crosstab-table td:first-child {
+            text-align: left;
+        }
+
+        .crosstab-table td {
+            text-align: right;
+            padding: 9px 0;
+            border-bottom: 1px solid var(--dark-border);
+            color: #d8d8d8;
+        }
+
+        .crosstab-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .crosstab-total-row td {
+            color: #fff;
+            border-top: 1px solid var(--dark-border);
+        }
+
+        /* video walkthrough module */
+        .video-frame {
+            background: #000;
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        .video-frame video {
+            width: 100%;
+            display: block;
+            aspect-ratio: 16 / 9;
+            max-height: 88vh;
+        }
+
+        footer {
+            border-top: 1px solid var(--border);
+            background: var(--card);
+        }
+
+        .rutgers-footer {
+            background: #000000;
+            color: #FFFFFF;
+            margin-top: auto;
+        }
+
+        .rutgers-footer-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 18px 28px;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .rutgers-footer-inner p {
+            margin: 0 0 8px;
+        }
+
+        .rutgers-footer-inner a {
+            color: #FFFFFF;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="topnav">
+    <div class="topnav-inner">
+        <a href="index.html" class="brand">
+            <img class="brand-mark" src="SL_2primary_RED_WHITE.png"
+                 alt="Rutgers New Brunswick — Center for Advanced Infrastructure and Transportation">
+        </a>
+        <nav class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="projects.html">Projects</a>
+            <a href="resources.html">Resources</a>
+            <a href="support.html">Support</a>
+            <a href="https://newbrunswick.rutgers.edu" target="_blank" rel="noopener noreferrer">Visit Rutgers.edu</a>
+        </nav>
+    </div>
+</div>
+
+<div class="workspace">
+
+    <div class="page-header">
+        <h1>Space Optimization Dashboard</h1>
+    </div>
+
+    <div class="module-switch">
+        <button class="module-btn active" id="btnAnalyticsModule">Space Optimization Analytics</button>
+        <button class="module-btn" id="btnLidarModule">Facility LiDAR Scans</button>
+        <button class="module-btn" id="btnWalkthroughModule">Dashboard Walkthrough</button>
+    </div>
+
+    <!-- ================= ANALYTICS MODULE ================= -->
+    <div id="analyticsModule">
+
+        <div class="explain-placeholder">Add a short explanation of this dashboard here — what it covers, how often it
+            updates, and what decisions it's meant to support.
+        </div>
+
+        <div class="page-tabs">
+            <button class="tab-btn active" data-tab="tabCurrentStatus">Current Inventory Status</button>
+            <button class="tab-btn" data-tab="tabMinMax">Min-Max Optimization</button>
+            <button class="tab-btn" data-tab="tabCycleCount">Cycle Count Optimization</button>
+        </div>
+
+        <!-- ============ TAB: CURRENT INVENTORY STATUS ============ -->
+        <div class="tab-panel" id="tabCurrentStatus">
+
+            <div class="info-grid">
+                <div class="doc-section">
+                    <div class="doc-section-header">
+                        <h2>Definitions</h2>
+                        <span class="doc-section-tag">Current Inventory Status</span>
+                    </div>
+                    <div class="term-grid">
+                        <div class="term-item" onclick="jumpToViz('viz-movement')" role="button" tabindex="0">
+                            <div class="term-title">Movement rate</div>
+                            <p class="term-desc">The share of inventory classified as Active vs. Slow Moving, based on
+                                recent usage history.</p>
+                        </div>
+                        <div class="term-item" onclick="jumpToViz('viz-priority-risk')" role="button" tabindex="0">
+                            <div class="term-title">Slotting priority</div>
+                            <p class="term-desc">A score indicating how urgently an item should be placed for easy
+                                access, based on pick frequency — shown here crossed with each item's PO risk
+                                level.</p>
+                        </div>
+                        <div class="term-item" onclick="jumpToViz('viz-storage')" role="button" tabindex="0">
+                            <div class="term-title">Storage type</div>
+                            <p class="term-desc">The physical storage class assigned to an item — Pallets, Drawers,
+                                Boneyard, and others — based on handling needs.</p>
+                        </div>
+                        <div class="term-item" onclick="jumpToViz('viz-service')" role="button" tabindex="0">
+                            <div class="term-title">Supply continuity risk</div>
+                            <p class="term-desc">Whether current on-hand inventory is likely to cover demand until the
+                                next
+                                delivery, or is at risk of stockout first.</p>
+                        </div>
+                        <div class="term-item" onclick="jumpToViz('viz-exposure')" role="button" tabindex="0">
+                            <div class="term-title">Procurement exposure</div>
+                            <p class="term-desc">The dollar value of open purchase commitments tied to an item — a proxy
+                                for
+                                financial risk concentration.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="doc-section">
+                    <div class="doc-section-header">
+                        <h2>How to Read This Tab</h2>
+                        <span class="doc-section-tag">Current Inventory Status</span>
+                    </div>
+                    <ol class="howto-list">
+                        <li><span class="howto-num">1</span><span>The gauge shows the overall share of inventory that's active (green) vs. slow-moving (red), across all tracked items.</span>
+                        </li>
+                        <li><span class="howto-num">2</span><span>Search any item code, description, or priority level in the search box to filter the priority × PO risk breakdown, the storage-by-priority bars, and the item list all at once.</span>
+                        </li>
+                        <li><span class="howto-num">3</span><span>The priority × PO risk breakdown shades each cell by how many items fall into it — darker means more items — with row and column totals on the edges.</span>
+                        </li>
+                        <li><span class="howto-num">4</span><span>Switch between the High/Medium/Low tabs on the storage breakdown to see where each tier's inventory physically lives.</span>
+                        </li>
+                        <li><span class="howto-num">5</span><span>Service availability shows the share of items where on-hand stock may not last until the next delivery, across all tracked items.</span>
+                        </li>
+                        <li><span class="howto-num">6</span><span>Use the dropdowns on the item list for a second layer of filtering by priority, storage type, or PO risk level. The colored strip on each card reflects PO risk (red/yellow/green).</span>
+                        </li>
+                        <li><span class="howto-num">7</span><span>Click a bar on the exposure leaderboard to filter every visual above down to just that item; click it again (or clear the search box) to reset.</span>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- ================= DARK ANALYTICS SECTION ================= -->
+            <div class="dark-fullbleed">
+                <div class="dark-section">
+                    <p class="eyebrow">Current Inventory Status</p>
+
+                    <div class="dark-kpi-row">
+                        <div class="dark-kpi"><p class="val">138K</p>
+                            <p class="lbl">Total PO qty</p></div>
+                        <div class="dark-kpi"><p class="val">121.3K</p>
+                            <p class="lbl">Total on hand</p></div>
+                        <div class="dark-kpi"><p class="val" style="color:#fff">$27.1M</p>
+                            <p class="lbl">Total inventory value</p></div>
+                    </div>
+
+                    <div class="viz-grid">
+
+                        <!-- 1. Movement rate gauge -->
+                        <div class="dcard" id="viz-movement">
+                            <p class="dcard-title">Inventory movement rate</p>
+                            <p class="dcard-cap">Active vs. slow-moving share of tracked inventory.</p>
+                            <div class="gauge-wrap">
+                                <div style="position:relative;width:180px;height:110px">
+                                    <svg id="gaugeSvg" viewBox="0 0 200 115" width="180" height="104"></svg>
+                                </div>
+                                <div>
+                                    <div class="legend-row"><span class="legend-dot" style="background:#27AE60"></span>Active
+                                        — <strong id="lgActive">56.19%</strong></div>
+                                    <div class="legend-row"><span class="legend-dot"
+                                                                  style="background:var(--scarlet)"></span>Slow moving —
+                                        <strong id="lgSlow">43.81%</strong></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 1b. Global search -->
+                        <div class="dcard" id="viz-search">
+                            <p class="dcard-title">Search this dashboard</p>
+                            <p class="dcard-cap">Search by item code, description, or priority level — updates the
+                                breakdown, storage bars, and item list below together.</p>
+                            <div style="position:relative">
+                                <input class="dsearch" id="globalSearch" style="width:100%;margin-left:0"
+                                       placeholder="e.g. brake, 22459070.NEW, high priority">
+                            </div>
+                            <p class="item-count" id="globalFilterStatus" style="min-height:16px"></p>
+                        </div>
+
+                        <!-- 2. Priority x PO Risk heatmap -->
+                        <div class="dcard full" id="viz-priority-risk">
+                            <p class="dcard-title">Priority × PO risk breakdown</p>
+                            <p class="dcard-cap">Item counts by slotting priority and purchase-order risk level —
+                                red for high risk, yellow for medium, green for low. Shows overall totals until you
+                                search above, then reflects just the matching items.</p>
+                            <div id="heatmapWrap"></div>
+                        </div>
+
+                        <!-- 3. Storage by priority toggle -->
+                        <div class="dcard" id="viz-storage">
+                            <p class="dcard-title">Storage type by priority</p>
+                            <p class="dcard-cap">Where each priority tier's inventory physically lives.</p>
+                            <div class="toggle-row" id="toggleRow">
+                                <div class="toggle-btn active" data-p="High Priority">High Priority</div>
+                                <div class="toggle-btn" data-p="Medium Priority">Medium Priority</div>
+                                <div class="toggle-btn" data-p="Low Priority">Low Priority</div>
+                            </div>
+                            <div id="storageBars"></div>
+                        </div>
+
+                        <!-- 4. Service availability -->
+                        <div class="dcard" id="viz-service">
+                            <p class="dcard-title">Service availability risk</p>
+                            <p class="dcard-cap">Share of items where on-hand stock may not cover demand until next
+                                delivery.</p>
+                            <div class="gauge-wrap">
+                                <div style="position:relative;width:180px;height:110px">
+                                    <svg id="svcSvg" viewBox="0 0 200 115" width="180" height="104"></svg>
+                                    <div class="gauge-center"><span class="num" id="svcNum">80%</span><span class="sub">at risk</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="legend-row"><span class="legend-dot"
+                                                                  style="background:var(--scarlet)"></span>Stockout risk
+                                        —
+                                        <strong>93 items</strong></div>
+                                    <div class="legend-row"><span class="legend-dot" style="background:#27AE60"></span>Covered
+                                        — <strong>13 items</strong></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 5. Item-level status -->
+                        <div class="dcard full">
+                            <p class="dcard-title">Item-level status</p>
+                            <p class="dcard-cap">Filtered by the search box above. Use the dropdowns for a second
+                                layer of filtering.</p>
+                            <div class="filter-row">
+                                <label class="sr-only" for="fPriority">Filter by slotting priority</label>
+                                <select class="dselect" id="fPriority">
+                                    <option value="">All priorities</option>
+                                </select>
+                                <label class="sr-only" for="fStorage">Filter by storage type</label>
+                                <select class="dselect" id="fStorage">
+                                    <option value="">All storage types</option>
+                                </select>
+                                <label class="sr-only" for="fRisk">Filter by PO risk</label>
+                                <select class="dselect" id="fRisk">
+                                    <option value="">All PO risk</option>
+                                </select>
+                            </div>
+                            <div class="item-list" id="itemList"></div>
+                            <p class="item-count" id="itemCount"></p>
+                        </div>
+
+                        <!-- 6. Procurement exposure -->
+                        <div class="dcard full" id="viz-exposure">
+                            <p class="dcard-title">Procurement exposure — top items</p>
+                            <p class="dcard-cap">Items carrying the largest open purchase-value exposure. Click a bar
+                                to filter the visuals above to that item; click it again to clear.</p>
+                            <div id="lbList"></div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <!-- ============ END TAB: CURRENT INVENTORY STATUS ============ -->
+        </div>
+
+        <!-- ============ TAB: MIN-MAX OPTIMIZATION ============ -->
+        <div class="tab-panel" id="tabMinMax" style="display:none">
+
+            <div class="info-grid">
+                <div class="doc-section">
+                    <div class="doc-section-header">
+                        <h2>Definitions</h2>
+                        <span class="doc-section-tag">Min-Max Optimization</span>
+                    </div>
+                    <div class="term-grid">
+                        <div class="term-item">
+                            <div class="term-title">NIVR (Net Inventory Value Reduction)</div>
+                            <p class="term-desc">Estimated total capital freed up when shifting from current policy to
+                                the selected min-max policy.</p>
+                        </div>
+                        <div class="term-item">
+                            <div class="term-title">Lead Time Variability</div>
+                            <p class="term-desc">Simulated vendor supply delay parameters (Normal, 15% Delay, 30% Delay)
+                                used to stress-test safety stock thresholds.</p>
+                        </div>
+                        <div class="term-item">
+                            <div class="term-title">Demand Profile</div>
+                            <p class="term-desc">A simulated demand pattern (Stable, Moderate, Spiky) representing how
+                                predictable or volatile item usage is expected to be.</p>
+                        </div>
+                        <div class="term-item">
+                            <div class="term-title">Policy Type</div>
+                            <p class="term-desc">The replenishment strategy being modeled — Balanced, High Service, or
+                                Lean — each trading off inventory cost against service level.</p>
+                        </div>
+                        <div class="term-item">
+                            <div class="term-title">Min-Max Recommendation</div>
+                            <p class="term-desc">The suggested minimum and maximum stock thresholds for an item under
+                                the selected scenario, compared against current thresholds.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="doc-section">
+                    <div class="doc-section-header">
+                        <h2>How to Read This Tab</h2>
+                        <span class="doc-section-tag">Min-Max Optimization</span>
+                    </div>
+                    <ol class="howto-list">
+                        <li><span class="howto-num">1</span><span>The KPI cards summarize the optimization model as a whole: how many parts were evaluated, the total capital that could be freed up (NIVR), and how many recommendations were validated.</span>
+                        </li>
+                        <li><span class="howto-num">2</span><span>Use the Lead Time, Demand Profile, and Policy Type toggles below to pick a scenario — the Replenishment Workload multiple, the policy comparison, and the exposure leaderboard all update to match.</span>
+                        </li>
+                        <li><span class="howto-num">3</span><span>The Current vs. Selected Policy card compares today's inventory value and fill rate against what the chosen scenario would produce.</span>
+                        </li>
+                        <li><span class="howto-num">4</span><span>The Inventory Value Reduction leaderboard ranks the items driving the largest savings under the selected Policy Type — this ranking depends only on Policy Type, not Lead Time or Demand.</span>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- ================= DARK ANALYTICS SECTION (Min-Max) ================= -->
+            <div class="dark-fullbleed">
+                <div class="dark-section">
+                    <p class="eyebrow">Min-Max Optimization</p>
+
+                    <div class="dark-kpi-row cols-4">
+                        <div class="dark-kpi"><p class="val">92</p>
+                            <p class="lbl">Parts evaluated</p></div>
+                        <div class="dark-kpi"><p class="val" style="color:#fff">$5.53M</p>
+                            <p class="lbl">NIVR</p></div>
+                        <div class="dark-kpi"><p class="val">91</p>
+                            <p class="lbl">Validated recommendations</p></div>
+                        <div class="dark-kpi"><p class="val" id="mmReplenishment">2.27x</p>
+                            <p class="lbl">Replenishment workload</p></div>
+                    </div>
+
+                    <div class="viz-grid">
+
+                        <!-- Scenario selector -->
+                        <div class="dcard full">
+                            <p class="dcard-title">Scenario selector</p>
+                            <p class="dcard-cap">Choose a Lead Time, Demand Profile, and Policy Type to see how the
+                                recommendation changes.</p>
+                            <div class="scenario-panel">
+                                <div>
+                                    <p class="scenario-group-label">Lead Time Variability</p>
+                                    <div class="toggle-row" id="mmLeadTimeRow">
+                                        <div class="toggle-btn" data-v="Normal Lead Time">Normal</div>
+                                        <div class="toggle-btn active" data-v="15% Delay">15% Delay</div>
+                                        <div class="toggle-btn" data-v="30% Delay">30% Delay</div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <p class="scenario-group-label">Demand Profile</p>
+                                    <div class="toggle-row" id="mmDemandRow">
+                                        <div class="toggle-btn" data-v="Stable">Stable</div>
+                                        <div class="toggle-btn active" data-v="Moderate">Moderate</div>
+                                        <div class="toggle-btn" data-v="Spiky">Spiky</div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <p class="scenario-group-label">Policy Type</p>
+                                    <div class="toggle-row" id="mmPolicyRow">
+                                        <div class="toggle-btn" data-v="Lean">Lean</div>
+                                        <div class="toggle-btn active" data-v="Balanced">Balanced</div>
+                                        <div class="toggle-btn" data-v="High Service">High Service</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Policy comparison -->
+                        <div class="dcard full">
+                            <p class="dcard-title">Current vs. selected policy</p>
+                            <p class="dcard-cap">Inventory value and fill rate under today's policy vs. the selected
+                                scenario.</p>
+                            <div class="policy-compare">
+                                <div class="compare-block">
+                                    <p class="compare-label">Current Policy</p>
+                                    <p class="compare-val" id="mmCurrentValue">$10.19M</p>
+                                    <p class="compare-sub">Inventory value</p>
+                                    <p class="compare-val" id="mmCurrentFill" style="margin-top:10px">66.06%</p>
+                                    <p class="compare-sub">Fill rate</p>
+                                </div>
+                                <div class="compare-arrow">→</div>
+                                <div class="compare-block">
+                                    <p class="compare-label">Selected Policy</p>
+                                    <p class="compare-val" id="mmSelectedValue" style="color:#27AE60">$4.01M</p>
+                                    <p class="compare-sub">Inventory value</p>
+                                    <p class="compare-val" id="mmSelectedFill" style="margin-top:10px;color:#27AE60">
+                                        99.98%</p>
+                                    <p class="compare-sub">Fill rate</p>
+                                </div>
+                            </div>
+                            <div class="compare-delta" id="mmDelta">
+                                Switching to this scenario frees up <strong>$6.18M</strong> in inventory value while
+                                improving fill rate by <strong>+33.9pt</strong>.
+                            </div>
+                        </div>
+
+                        <!-- Inventory Value Reduction leaderboard -->
+                        <div class="dcard full">
+                            <p class="dcard-title">Inventory value reduction — top items</p>
+                            <p class="dcard-cap">Items driving the largest value reduction under the selected Policy
+                                Type. <span id="mmLbPolicyNote">(Balanced)</span></p>
+                            <div id="mmLbList"></div>
+                        </div>
+
+                    </div>
+
+                    <p class="dark-section-note" style="margin-top:8px">Two visuals from the Power BI page —
+                        Stockout-Day Risk Distribution and the item-level Min-Max Recommendation table (current vs.
+                        recommended thresholds) — are still pending. The risk-distribution export returned the same item
+                        count for every risk band, which points to an issue with that measure rather than real data; the
+                        recommendation table needs its min/max measure names confirmed in DAX query view before it can
+                        be exported.</p>
+                </div>
+            </div>
+            <!-- ============ END TAB: MIN-MAX OPTIMIZATION ============ -->
+        </div>
+
+
+        <!-- ============ TAB: CYCLE COUNT OPTIMIZATION ============ -->
+        <div class="tab-panel" id="tabCycleCount" style="display:none">
+
+            <div class="info-grid">
+                <div class="doc-section">
+                    <div class="doc-section-header">
+                        <h2>Definitions</h2>
+                        <span class="doc-section-tag">Cycle Count Optimization</span>
+                    </div>
+                    <div class="term-grid">
+                        <div class="term-item">
+                            <div class="term-title">Definitions pending</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="doc-section">
+                    <div class="doc-section-header">
+                        <h2>How to Read This Tab</h2>
+                        <span class="doc-section-tag">Cycle Count Optimization</span>
+                    </div>
+                    <ol class="howto-list">
+                    </ol>
+                </div>
+            </div>
+
+            <!-- ================= DARK ANALYTICS SECTION (Cycle Count) ================= -->
+            <div class="dark-fullbleed">
+                <div class="dark-section">
+                    <p class="eyebrow">Cycle Count Optimization</p>
+
+                    <div class="dark-kpi-row">
+                        <div class="dark-kpi"><p class="val">—</p>
+                            <p class="lbl">KPI 1</p></div>
+                        <div class="dark-kpi"><p class="val">—</p>
+                            <p class="lbl">KPI 2</p></div>
+                        <div class="dark-kpi"><p class="val">—</p>
+                            <p class="lbl">KPI 3</p></div>
+                    </div>
+
+
+                </div>
+            </div>
+            <!-- ============ END TAB: CYCLE COUNT OPTIMIZATION ============ -->
+        </div>
+
+    </div>
+    <!-- ================= END ANALYTICS MODULE ================= -->
+
+    <!-- ================= LIDAR MODULE ================= -->
+    <div id="lidarModule" style="display:none">
+        <div class="explain-placeholder">Add a short explanation of these facility LiDAR scans here
+        </div>
+
+        <div class="doc-section scan-link-card">
+            <div>
+                <h2 style="margin:0 0 4px">Boneyard — 3D Scan View</h2>
+                <p style="color:var(--slate);font-size:13px;margin:0">Explore the boneyard area at MMC in an interactive
+                    3D point-cloud view, hosted on Pix4D.</p>
+            </div>
+            <a class="scan-link-btn"
+               href="https://cloud.pix4d.com/site/373554/dataset/2309444/map?shareToken=5f1d1683-1650-46c7-9c5c-0a1f502089e8"
+               target="_blank" rel="noopener noreferrer">Open 3D Boneyard View →</a>
+        </div>
+
+        <div class="doc-section" style="padding:0;overflow:hidden">
+            <iframe
+                    title="Facility LiDAR Scans"
+                    src="https://www.arcgis.com/apps/mapviewer/index.html?layers=148f447d45814744b731b40fe97e873b"
+                    style="width:100%;height:720px;border:0;display:block"
+                    allowFullScreen>
+            </iframe>
+        </div>
+    </div>
+    <!-- ================= END LIDAR MODULE ================= -->
+
+    <!-- ================= WALKTHROUGH MODULE ================= -->
+    <div id="walkthroughModule" style="display:none">
+        <div class="explain-placeholder">A short narrated tour of example insights this dashboard can surface —
+            stockout timing, procurement exposure, and storage-location mismatches.
+        </div>
+
+        <div class="doc-section video-frame" style="padding:0">
+            <video
+                    controls
+                    preload="metadata"
+                    poster="dashboard_walkthrough_poster.png"
+                    width="1920"
+                    height="1080"
+                    style="width:100%;display:block;background:#000">
+                <source src="dashboard_walkthrough.mp4" type="video/mp4">
+                Your browser doesn't support embedded video.
+            </video>
+        </div>
+    </div>
+    <!-- ================= END WALKTHROUGH MODULE ================= -->
+
+</div>
+
+<div class="rutgers-footer">
+    <div class="rutgers-footer-inner">
+        <p>Rutgers is an equal access/equal opportunity institution. Individuals with disabilities are encouraged to
+            direct suggestions, comments, or complaints concerning any accessibility issues with Rutgers websites to <a
+                    href="mailto:accessibility@rutgers.edu">accessibility@rutgers.edu</a> or complete the <a
+                    href="https://it.rutgers.edu/it-accessibility-initiative/barrierform/" target="_blank"
+                    rel="noopener noreferrer">Report Accessibility Barrier / Provide Feedback</a> form.</p>
+        <p><a href="https://www.rutgers.edu/copyright-information" target="_blank" rel="noopener noreferrer">Copyright
+            ©2026</a>, <a href="https://www.rutgers.edu/" target="_blank" rel="noopener noreferrer">Rutgers, The State
+            University of New Jersey</a>. All rights reserved. Contact webmaster</p>
+        <p>Note: this dashboard is a working demonstration built to show what's possible with CAIT's analytics — the
+            underlying data is illustrative and not connected to a live or current transit system.</p>
+    </div>
+</div>
+
+<script>
+    // ===== Real exported data =====
+    const movement = {active: 59, slow: 46};
+    const serviceAvailability = {risk: 93, covered: 13};
+    const exposureTop = [
+        {item: "29990000.NEW", value: 394382625},
+        {item: "25990239.NEW", value: 360985000},
+        {item: "29340815.NEW", value: 278517506},
+        {item: "29045000.NEW", value: 227319500},
+        {item: "20990070.NEW", value: 143327646},
+        {item: "25794830.NEW", value: 80761186}
+    ];
+    const items = [{
+        "item": "20041164.NEW",
+        "priority": "High Priority",
+        "onHand": 421,
+        "usage": -825.0,
+        "leadTime": 130.5,
+        "poRisk": "Low PO Risk",
+        "ratio": 2.0,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "SHOCK ABSORBER, VERTICAL, ALL COMETS"
+    }, {
+        "item": "20238759.NEW",
+        "priority": "High Priority",
+        "onHand": 8,
+        "usage": -66.0,
+        "leadTime": 52.0,
+        "poRisk": "Medium PO Risk",
+        "ratio": 8.2,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "BUMPER, LATERAL, RUBBER, TRUCK, CO2/4, 4"
+    }, {
+        "item": "20608890.NEW",
+        "priority": "High Priority",
+        "onHand": 540,
+        "usage": -19532.0,
+        "leadTime": 157.5,
+        "poRisk": "High PO Risk",
+        "ratio": 36.2,
+        "storage": "Boneyard",
+        "recStorage": "Outside Scan - Boneyard Review",
+        "desc": "PAD SET, BRAKE, ALL COMETS, SET INCLUDES"
+    }, {
+        "item": "20741305.NEW",
+        "priority": "High Priority",
+        "onHand": 1344,
+        "usage": -5880.0,
+        "leadTime": 39.0,
+        "poRisk": "Low PO Risk",
+        "ratio": 4.4,
+        "storage": "Boneyard",
+        "recStorage": "Outside Scan - Boneyard Review",
+        "desc": "SHOE, BRAKE 2 W/REJECT LUG, AND END STO"
+    }, {
+        "item": "20803113.NEW",
+        "priority": "High Priority",
+        "onHand": 1354,
+        "usage": -11024.0,
+        "leadTime": 52.5,
+        "poRisk": "Low PO Risk",
+        "ratio": 8.1,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "SHOE, BRAKE, V-490, CO2/4/5, 136/PALLET"
+    }, {
+        "item": "20803113.NEW",
+        "priority": "High Priority",
+        "onHand": 1354,
+        "usage": -11024.0,
+        "leadTime": 52.5,
+        "poRisk": "Medium PO Risk",
+        "ratio": 8.1,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "SHOE, BRAKE, V-490, CO2/4/5, 136/PALLET"
+    }, {
+        "item": "20803130.NEW",
+        "priority": "High Priority",
+        "onHand": 304,
+        "usage": -15803.0,
+        "leadTime": 16.0,
+        "poRisk": "Medium PO Risk",
+        "ratio": 52.0,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "SHOE, BRAKE V-578, IN MODIFIED CRATE PRE"
+    }, {
+        "item": "20827801.NEW",
+        "priority": "High Priority",
+        "onHand": 0,
+        "usage": -26.0,
+        "leadTime": 85.0,
+        "poRisk": "High PO Risk",
+        "ratio": null,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "SPRING ASSY, COUPLER, BEAM GUIDE, CO2, M"
+    }, {
+        "item": "20990002.NEW",
+        "priority": "High Priority",
+        "onHand": 383,
+        "usage": -334.0,
+        "leadTime": 108.0,
+        "poRisk": "Low PO Risk",
+        "ratio": 0.9,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "SHOCK, ABSORBER, VERTICAL PRIMARY, SUSPE"
+    }, {
+        "item": "20990017.NEW",
+        "priority": "High Priority",
+        "onHand": 0,
+        "usage": -22.0,
+        "leadTime": 111.0,
+        "poRisk": "High PO Risk",
+        "ratio": null,
+        "storage": "Ridge Crossing / Overflow",
+        "recStorage": "Overflow / Secondary Storage Review",
+        "desc": "SPRING, OUTER, PRIMARY SUSPENSION, ML"
+    }, {
+        "item": "20990070.NEW",
+        "priority": "High Priority",
+        "onHand": 4320,
+        "usage": -49036.0,
+        "leadTime": 178.5,
+        "poRisk": "High PO Risk",
+        "ratio": 11.4,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "PAD SET, BRAKE, ML, 240 PAIR/PLT"
+    }, {
+        "item": "20990070.NEW",
+        "priority": "High Priority",
+        "onHand": 4320,
+        "usage": -49036.0,
+        "leadTime": 178.5,
+        "poRisk": "Low PO Risk",
+        "ratio": 11.4,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "PAD SET, BRAKE, ML, 240 PAIR/PLT"
+    }, {
+        "item": "22000078.NEW",
+        "priority": "High Priority",
+        "onHand": 0,
+        "usage": -120.0,
+        "leadTime": 186.5,
+        "poRisk": "High PO Risk",
+        "ratio": null,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "J1-2-1"
+    }, {
+        "item": "22028904.NEW",
+        "priority": "High Priority",
+        "onHand": 0,
+        "usage": -100.0,
+        "leadTime": 59.5,
+        "poRisk": "Medium PO Risk",
+        "ratio": null,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "BEARING, SPACER-OIL CUSHION, GE-6, GJ-5-"
+    }, {
+        "item": "22060911.NEW",
+        "priority": "High Priority",
+        "onHand": 100,
+        "usage": -280.0,
+        "leadTime": 106.0,
+        "poRisk": "High PO Risk",
+        "ratio": 2.8,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "BOLT, GREASE FITTING, BRAKE HEAD GE-6 &"
+    }, {
+        "item": "22218209.NEW",
+        "priority": "High Priority",
+        "onHand": 0,
+        "usage": -936.0,
+        "leadTime": 74.0,
+        "poRisk": "High PO Risk",
+        "ratio": null,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "On/off Indicators"
+    }, {
+        "item": "22251494.NEW",
+        "priority": "High Priority",
+        "onHand": 1,
+        "usage": -91.0,
+        "leadTime": 133.0,
+        "poRisk": "High PO Risk",
+        "ratio": 91.0,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "M/R Filter"
+    }, {
+        "item": "22418412.NEW",
+        "priority": "High Priority",
+        "onHand": 280,
+        "usage": -707.0,
+        "leadTime": 33.0,
+        "poRisk": "Low PO Risk",
+        "ratio": 2.5,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "HOSE, 7/8 ID, 1 MALE PIPE EA, END, LS"
+    }, {
+        "item": "22453241.NEW",
+        "priority": "High Priority",
+        "onHand": 0,
+        "usage": -130.0,
+        "leadTime": 0.0,
+        "poRisk": "Medium PO Risk",
+        "ratio": null,
+        "storage": "Drawers",
+        "recStorage": "Manual Review Required",
+        "desc": "90 # Volume Check"
+    }, {
+        "item": "22456613.NEW",
+        "priority": "High Priority",
+        "onHand": 350,
+        "usage": -350.0,
+        "leadTime": 132.5,
+        "poRisk": "Low PO Risk",
+        "ratio": 1.0,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "Dead Engine Cutout"
+    }, {
+        "item": "22456613.NEW",
+        "priority": "High Priority",
+        "onHand": 350,
+        "usage": -350.0,
+        "leadTime": 132.5,
+        "poRisk": "Low PO Risk",
+        "ratio": 1.0,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "EP Cutout"
+    }, {
+        "item": "22456778.NEW",
+        "priority": "High Priority",
+        "onHand": 0,
+        "usage": -125.0,
+        "leadTime": 182.0,
+        "poRisk": "High PO Risk",
+        "ratio": null,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "Combination Cutout-Strainer"
+    }, {
+        "item": "22458258.NEW",
+        "priority": "High Priority",
+        "onHand": 70,
+        "usage": -190.0,
+        "leadTime": 174.5,
+        "poRisk": "High PO Risk",
+        "ratio": 2.7,
+        "storage": "Drawers",
+        "recStorage": "Manual Review Required",
+        "desc": "N-3-E Magnet Valve"
+    }, {
+        "item": "22458294.NEW",
+        "priority": "High Priority",
+        "onHand": 0,
+        "usage": -75.0,
+        "leadTime": 312.5,
+        "poRisk": "High PO Risk",
+        "ratio": null,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "B-1 Quick Service"
+    }, {
+        "item": "22458294.NEW",
+        "priority": "High Priority",
+        "onHand": 0,
+        "usage": -75.0,
+        "leadTime": 312.5,
+        "poRisk": "High PO Risk",
+        "ratio": null,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "Quick Service"
+    }, {
+        "item": "22458448.NEW",
+        "priority": "High Priority",
+        "onHand": 0,
+        "usage": -270.0,
+        "leadTime": 160.0,
+        "poRisk": "High PO Risk",
+        "ratio": null,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "N-1-E  Magnet Valve"
+    }, {
+        "item": "22458448.NEW",
+        "priority": "High Priority",
+        "onHand": 0,
+        "usage": -270.0,
+        "leadTime": 160.0,
+        "poRisk": "High PO Risk",
+        "ratio": null,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "N-1-E Magnet Valve"
+    }, {
+        "item": "22458994.NEW",
+        "priority": "High Priority",
+        "onHand": 160,
+        "usage": -660.0,
+        "leadTime": 40.0,
+        "poRisk": "Medium PO Risk",
+        "ratio": 4.1,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "Horizontal Leveling"
+    }, {
+        "item": "22458994.NEW",
+        "priority": "High Priority",
+        "onHand": 160,
+        "usage": -660.0,
+        "leadTime": 40.0,
+        "poRisk": "Medium PO Risk",
+        "ratio": 4.1,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "Horizontal Leveling Valves"
+    }, {
+        "item": "22459059.NEW",
+        "priority": "High Priority",
+        "onHand": 0,
+        "usage": -230.0,
+        "leadTime": 147.0,
+        "poRisk": "High PO Risk",
+        "ratio": null,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "B-1 Quick Service Valve"
+    }, {
+        "item": "22459059.NEW",
+        "priority": "High Priority",
+        "onHand": 0,
+        "usage": -230.0,
+        "leadTime": 147.0,
+        "poRisk": "High PO Risk",
+        "ratio": null,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "Selector Valve"
+    }, {
+        "item": "22459070.NEW",
+        "priority": "High Priority",
+        "onHand": 483,
+        "usage": -785.0,
+        "leadTime": 0.0,
+        "poRisk": "Low PO Risk",
+        "ratio": 1.6,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "VX Vent Valves"
+    }, {
+        "item": "22459347.NEW",
+        "priority": "High Priority",
+        "onHand": 56,
+        "usage": -219.0,
+        "leadTime": 211.0,
+        "poRisk": "High PO Risk",
+        "ratio": 3.9,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "B3B Conductor"
+    }, {
+        "item": "22459347.NEW",
+        "priority": "High Priority",
+        "onHand": 56,
+        "usage": -219.0,
+        "leadTime": 211.0,
+        "poRisk": "High PO Risk",
+        "ratio": 3.9,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "B-3-B Conductor Valves"
+    }, {
+        "item": "22459364.NEW",
+        "priority": "High Priority",
+        "onHand": 130,
+        "usage": -280.0,
+        "leadTime": 85.5,
+        "poRisk": "High PO Risk",
+        "ratio": 2.2,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "#8 Vent Valves"
+    }, {
+        "item": "22459463.NEW",
+        "priority": "High Priority",
+        "onHand": 7,
+        "usage": -441.0,
+        "leadTime": 222.0,
+        "poRisk": "High PO Risk",
+        "ratio": 63.0,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "E-3 Application Valve"
+    }, {
+        "item": "22459463.NEW",
+        "priority": "High Priority",
+        "onHand": 7,
+        "usage": -441.0,
+        "leadTime": 222.0,
+        "poRisk": "High PO Risk",
+        "ratio": 63.0,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "E-3 Brake Application"
+    }, {
+        "item": "22459463.NEW",
+        "priority": "High Priority",
+        "onHand": 7,
+        "usage": -441.0,
+        "leadTime": 222.0,
+        "poRisk": "High PO Risk",
+        "ratio": 63.0,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "E-3 Brake Application Valves"
+    }, {
+        "item": "22459478.NEW",
+        "priority": "High Priority",
+        "onHand": 1400,
+        "usage": -1500.0,
+        "leadTime": 191.5,
+        "poRisk": "High PO Risk",
+        "ratio": 1.1,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "KIT, COVER NUT, TREAD BRAKE UNIT, INCLUD"
+    }, {
+        "item": "22459495.NEW",
+        "priority": "High Priority",
+        "onHand": 35,
+        "usage": -85.0,
+        "leadTime": 187.5,
+        "poRisk": "High PO Risk",
+        "ratio": 2.4,
+        "storage": "Drawers",
+        "recStorage": "Manual Review Required",
+        "desc": "P2A Brake Application"
+    }, {
+        "item": "22459702.NEW",
+        "priority": "High Priority",
+        "onHand": 26,
+        "usage": -99.0,
+        "leadTime": 221.0,
+        "poRisk": "High PO Risk",
+        "ratio": 3.8,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "MC-30-A Control Valve"
+    }, {
+        "item": "22459702.NEW",
+        "priority": "High Priority",
+        "onHand": 26,
+        "usage": -99.0,
+        "leadTime": 221.0,
+        "poRisk": "High PO Risk",
+        "ratio": 3.8,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "MC-31 Control Valve"
+    }, {
+        "item": "22459781.NEW",
+        "priority": "High Priority",
+        "onHand": 0,
+        "usage": -95.0,
+        "leadTime": 81.0,
+        "poRisk": "High PO Risk",
+        "ratio": null,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "Reservoir Release"
+    }, {
+        "item": "22459781.NEW",
+        "priority": "High Priority",
+        "onHand": 0,
+        "usage": -95.0,
+        "leadTime": 81.0,
+        "poRisk": "High PO Risk",
+        "ratio": null,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "Reservoir Release Valve"
+    }, {
+        "item": "22459825.NEW",
+        "priority": "High Priority",
+        "onHand": 70,
+        "usage": -185.0,
+        "leadTime": 214.5,
+        "poRisk": "High PO Risk",
+        "ratio": 2.6,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "Variable Load"
+    }, {
+        "item": "22460148.NEW",
+        "priority": "High Priority",
+        "onHand": 0,
+        "usage": -75.0,
+        "leadTime": 113.0,
+        "poRisk": "High PO Risk",
+        "ratio": null,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "FILTER, OIL, WABTEC COMPRESSOR, ALP45/A/"
+    }, {
+        "item": "22460321.NEW",
+        "priority": "High Priority",
+        "onHand": 4,
+        "usage": -120.0,
+        "leadTime": 125.0,
+        "poRisk": "High PO Risk",
+        "ratio": 30.0,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "ELEMENT, AIR FILTER, AUX AIR COMP, A46"
+    }, {
+        "item": "22521056.NEW",
+        "priority": "High Priority",
+        "onHand": 0,
+        "usage": -100.0,
+        "leadTime": 104.5,
+        "poRisk": "High PO Risk",
+        "ratio": null,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "PAWL, TREAD BRAKE - IMPROVED STYLE GE-6,"
+    }, {
+        "item": "22611300.NEW",
+        "priority": "High Priority",
+        "onHand": 72,
+        "usage": -178.0,
+        "leadTime": 190.0,
+        "poRisk": "High PO Risk",
+        "ratio": 2.5,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "26-C Service Portion (529)"
+    }, {
+        "item": "22844805.NEW",
+        "priority": "High Priority",
+        "onHand": 0,
+        "usage": -900.0,
+        "leadTime": 188.5,
+        "poRisk": "High PO Risk",
+        "ratio": null,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "1/2\u201d OC-1-A Filter Valves"
+    }, {
+        "item": "22990101.NEW",
+        "priority": "High Priority",
+        "onHand": 35,
+        "usage": -450.0,
+        "leadTime": 63.0,
+        "poRisk": "High PO Risk",
+        "ratio": 12.9,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "Compensating Valve B12442/001"
+    }, {
+        "item": "25706033.NEW",
+        "priority": "High Priority",
+        "onHand": 0,
+        "usage": -200.0,
+        "leadTime": 127.0,
+        "poRisk": "High PO Risk",
+        "ratio": null,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "SENSOR, MAGNETIC PICK-UP, ELECTRICAL EQU"
+    }, {
+        "item": "25794830.NEW",
+        "priority": "High Priority",
+        "onHand": 0,
+        "usage": -40.0,
+        "leadTime": 299.0,
+        "poRisk": "High PO Risk",
+        "ratio": null,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "DOOR, MOTOR COMP. ASSY, RIGHT, ML"
+    }, {
+        "item": "25990239.NEW",
+        "priority": "High Priority",
+        "onHand": 14,
+        "usage": -177.0,
+        "leadTime": 215.0,
+        "poRisk": "High PO Risk",
+        "ratio": 12.6,
+        "storage": "Narrow Racks",
+        "recStorage": "Accessible Rack Storage",
+        "desc": "BATTERY ASSY, W/10X5 CELL TRAYS, ML, 10-"
+    }, {
+        "item": "29340815.NEW",
+        "priority": "High Priority",
+        "onHand": 24,
+        "usage": -959.0,
+        "leadTime": 103.5,
+        "poRisk": "High PO Risk",
+        "ratio": 40.0,
+        "storage": "Other / Unmapped",
+        "recStorage": "Manual Review Required",
+        "desc": "WHEEL, BLACK, B32CL-BR AAR APPR, WROUGHT"
+    }, {
+        "item": "29990000.NEW",
+        "priority": "High Priority",
+        "onHand": 704,
+        "usage": -700.0,
+        "leadTime": 65.0,
+        "poRisk": "Low PO Risk",
+        "ratio": 1.0,
+        "storage": "Other / Unmapped",
+        "recStorage": "Manual Review Required",
+        "desc": "WHEEL, WHITE, 36, ML. SUPPLIER MUST MEE"
+    }, {
+        "item": "29990001.NEW",
+        "priority": "High Priority",
+        "onHand": 0,
+        "usage": -197.0,
+        "leadTime": 118.5,
+        "poRisk": "High PO Risk",
+        "ratio": null,
+        "storage": "Other / Unmapped",
+        "recStorage": "Manual Review Required",
+        "desc": "AXLE, FORGED CARBON STEEL, 7 X 12, ML."
+    }, {
+        "item": "45293501.NEW",
+        "priority": "High Priority",
+        "onHand": 0,
+        "usage": -26.0,
+        "leadTime": 26.5,
+        "poRisk": "Medium PO Risk",
+        "ratio": null,
+        "storage": "Drawers",
+        "recStorage": "Manual Review Required",
+        "desc": "GAUGE, ROTOR HOLLOW WEAR, DISCS MADE OUT"
+    }, {
+        "item": "47000789.NEW",
+        "priority": "High Priority",
+        "onHand": 28,
+        "usage": -41.0,
+        "leadTime": 17.5,
+        "poRisk": "Low PO Risk",
+        "ratio": 1.5,
+        "storage": "Pallets",
+        "recStorage": "Accessible Pallet Storage",
+        "desc": "DECAL, DOOR HANDLE LOCATOR HPPL 7 X 4-1/"
+    }, {
+        "item": "11990001.NEW",
+        "priority": "Low Priority",
+        "onHand": 0,
+        "usage": null,
+        "leadTime": null,
+        "poRisk": "Medium PO Risk",
+        "ratio": null,
+        "storage": "Pallets",
+        "recStorage": "Pallet Storage",
+        "desc": "WINDOW ASSY, DROP SASH CAB DOOR, ML"
+    }, {
+        "item": "14000030.NEW",
+        "priority": "Low Priority",
+        "onHand": 0,
+        "usage": null,
+        "leadTime": null,
+        "poRisk": "Medium PO Risk",
+        "ratio": null,
+        "storage": "Pallets",
+        "recStorage": "Pallet Storage",
+        "desc": "SDU, HORIZONTAL PTC TRAIN CONTROLS, COM"
+    }, {
+        "item": "20990014.NEW",
+        "priority": "Low Priority",
+        "onHand": 0,
+        "usage": null,
+        "leadTime": null,
+        "poRisk": "Medium PO Risk",
+        "ratio": null,
+        "storage": "Pallets",
+        "recStorage": "Pallet Storage",
+        "desc": "ARM ASSY, SUSPENSION, PRI L1/R2/L3/R4, M"
+    }, {
+        "item": "20990015.NEW",
+        "priority": "Low Priority",
+        "onHand": 0,
+        "usage": null,
+        "leadTime": null,
+        "poRisk": "Medium PO Risk",
+        "ratio": null,
+        "storage": "Pallets",
+        "recStorage": "Pallet Storage",
+        "desc": "ARM ASSY, SUSPENSION, PRI R1/L2/R3/L4, M"
+    }, {
+        "item": "22169527.NEW",
+        "priority": "Low Priority",
+        "onHand": 40,
+        "usage": null,
+        "leadTime": null,
+        "poRisk": "Medium PO Risk",
+        "ratio": null,
+        "storage": "Drawers",
+        "recStorage": "Manual Review Required",
+        "desc": "COVER, FULCRUM PIN, GO-5-1/2,GE-6, TREAD"
+    }, {
+        "item": "22459470.NEW",
+        "priority": "Low Priority",
+        "onHand": 220,
+        "usage": null,
+        "leadTime": null,
+        "poRisk": "Medium PO Risk",
+        "ratio": null,
+        "storage": "Pallets",
+        "recStorage": "Pallet Storage",
+        "desc": "KIT, SLACK ADJUSTER TREAD BRAKE IMPROVED"
+    }, {
+        "item": "22459753.NEW",
+        "priority": "Low Priority",
+        "onHand": 0,
+        "usage": null,
+        "leadTime": null,
+        "poRisk": "Medium PO Risk",
+        "ratio": null,
+        "storage": "Other / Unmapped",
+        "recStorage": "Manual Review Required",
+        "desc": "Actuators"
+    }, {
+        "item": "22638439.NEW",
+        "priority": "Low Priority",
+        "onHand": 520,
+        "usage": null,
+        "leadTime": null,
+        "poRisk": "Low PO Risk",
+        "ratio": null,
+        "storage": "Drawers",
+        "recStorage": "Manual Review Required",
+        "desc": "RETAINER, DUST BOOT, TREAD BRAKE GE-6, G"
+    }, {
+        "item": "22812109.NEW",
+        "priority": "Low Priority",
+        "onHand": 4150,
+        "usage": -5.0,
+        "leadTime": 80.5,
+        "poRisk": "Low PO Risk",
+        "ratio": 0.0,
+        "storage": "Drawers",
+        "recStorage": "Manual Review Required",
+        "desc": "SPRING, RETURN, IMPROVED STYLE, TB GE-6"
+    }, {
+        "item": "22814055.NEW",
+        "priority": "Low Priority",
+        "onHand": 4160,
+        "usage": null,
+        "leadTime": null,
+        "poRisk": "Low PO Risk",
+        "ratio": null,
+        "storage": "Pallets",
+        "recStorage": "Pallet Storage",
+        "desc": "SPRING, PAWL, TREAD BRAKE GE-6, GJ-5-1/2"
+    }, {
+        "item": "22990018.NEW",
+        "priority": "Low Priority",
+        "onHand": 1,
+        "usage": -2.0,
+        "leadTime": 0.0,
+        "poRisk": "Medium PO Risk",
+        "ratio": 2.0,
+        "storage": "Pallets",
+        "recStorage": "Secondary Storage / Obsolete Review",
+        "desc": "SENSOR, SPEED, WHEEL, W/CABLE 138 ML"
+    }, {
+        "item": "43160751.NEW",
+        "priority": "Low Priority",
+        "onHand": 4160,
+        "usage": null,
+        "leadTime": null,
+        "poRisk": "Low PO Risk",
+        "ratio": null,
+        "storage": "Pallets",
+        "recStorage": "Pallet Storage",
+        "desc": "COTTER, 1/8 X 1-1/2, STEEL, EXTENDED P"
+    }, {
+        "item": "45294145.NEW",
+        "priority": "Low Priority",
+        "onHand": 27,
+        "usage": -3.0,
+        "leadTime": 6.0,
+        "poRisk": "Low PO Risk",
+        "ratio": 0.1,
+        "storage": "Drawers",
+        "recStorage": "Secondary Storage / Obsolete Review",
+        "desc": "GAUGE, COUPLER & BUFFER HEIGHTS, LOCO AN"
+    }, {
+        "item": "47237018.NEW",
+        "priority": "Low Priority",
+        "onHand": 200,
+        "usage": null,
+        "leadTime": null,
+        "poRisk": "Low PO Risk",
+        "ratio": null,
+        "storage": "Pallets",
+        "recStorage": "Pallet Storage",
+        "desc": "DECAL, ROOF CUT TEXT CUT ALONG DOTTED LI"
+    }, {
+        "item": "47237019.NEW",
+        "priority": "Low Priority",
+        "onHand": 63,
+        "usage": -6.0,
+        "leadTime": 14.0,
+        "poRisk": "Low PO Risk",
+        "ratio": 0.1,
+        "storage": "Pallets",
+        "recStorage": "Secondary Storage / Obsolete Review",
+        "desc": "DECAL, TAPE, REFLECTIVE, RED/CLEAR, ROOF"
+    }, {
+        "item": "47974147.NEW",
+        "priority": "Low Priority",
+        "onHand": 2759,
+        "usage": null,
+        "leadTime": null,
+        "poRisk": "Low PO Risk",
+        "ratio": null,
+        "storage": "Pallets",
+        "recStorage": "Pallet Storage",
+        "desc": "DECAL, FLOOR, DOT, LUMINESCENT CHARGE OU"
+    }, {
+        "item": "11990014.NEW",
+        "priority": "Medium Priority",
+        "onHand": 7,
+        "usage": -15.0,
+        "leadTime": 138.0,
+        "poRisk": "High PO Risk",
+        "ratio": 2.1,
+        "storage": "Pallets",
+        "recStorage": "Pallet Storage",
+        "desc": "WINDSHIELD, ML"
+    }, {
+        "item": "11990014.NEW",
+        "priority": "Medium Priority",
+        "onHand": 7,
+        "usage": -15.0,
+        "leadTime": 138.0,
+        "poRisk": "Low PO Risk",
+        "ratio": 2.1,
+        "storage": "Pallets",
+        "recStorage": "Pallet Storage",
+        "desc": "WINDSHIELD, ML"
+    }, {
+        "item": "12137020.NEW",
+        "priority": "Medium Priority",
+        "onHand": 780,
+        "usage": -1057.0,
+        "leadTime": 60.5,
+        "poRisk": "Low PO Risk",
+        "ratio": 1.4,
+        "storage": "Pallets",
+        "recStorage": "Secondary Storage / Obsolete Review",
+        "desc": "PAD, RADIUS ROD METAL BACKED NEOPRENE, R"
+    }, {
+        "item": "19076553.NEW",
+        "priority": "Medium Priority",
+        "onHand": 3237,
+        "usage": -5340.0,
+        "leadTime": 11.0,
+        "poRisk": "Low PO Risk",
+        "ratio": 1.6,
+        "storage": "Pallets",
+        "recStorage": "Pallet Storage",
+        "desc": "BOLT, TIE, OFF SNAP SPECIAL, CO2/4/5, RA"
+    }, {
+        "item": "20040968.NEW",
+        "priority": "Medium Priority",
+        "onHand": 508,
+        "usage": -556.0,
+        "leadTime": 93.5,
+        "poRisk": "Low PO Risk",
+        "ratio": 1.1,
+        "storage": "Pallets",
+        "recStorage": "Secondary Storage / Obsolete Review",
+        "desc": "ABSORBER, SHOCK, HORIZONTAL, ALL COMETS"
+    }, {
+        "item": "20160250.NEW",
+        "priority": "Medium Priority",
+        "onHand": 50,
+        "usage": -33.0,
+        "leadTime": 54.5,
+        "poRisk": "Low PO Risk",
+        "ratio": 0.7,
+        "storage": "Ridge Crossing / Overflow",
+        "recStorage": "Overflow / Secondary Storage Review",
+        "desc": "YOKE, COUPLER ASSY, CO2 SEC# 3/FIG# 1/IN"
+    }, {
+        "item": "20160251.NEW",
+        "priority": "Medium Priority",
+        "onHand": 28,
+        "usage": -13.0,
+        "leadTime": 13.5,
+        "poRisk": "Low PO Risk",
+        "ratio": 0.5,
+        "storage": "Pallets",
+        "recStorage": "Secondary Storage / Obsolete Review",
+        "desc": "PIN, NEW COUPLER, CO2/4, SEC# 3/FIG# 1/"
+    }, {
+        "item": "20460015.NEW",
+        "priority": "Medium Priority",
+        "onHand": 1380,
+        "usage": -2723.0,
+        "leadTime": 7.0,
+        "poRisk": "Low PO Risk",
+        "ratio": 2.0,
+        "storage": "Boneyard",
+        "recStorage": "Outside Scan - Boneyard Review",
+        "desc": "PAD SET, BRAKE, SINTERED, LEAF, A45/46/4"
+    }, {
+        "item": "20620825.NEW",
+        "priority": "Medium Priority",
+        "onHand": 116,
+        "usage": -56.0,
+        "leadTime": 116.0,
+        "poRisk": "Low PO Risk",
+        "ratio": 0.5,
+        "storage": "Drawers",
+        "recStorage": "Manual Review Required",
+        "desc": "PIN, HOLDING, PAWL, HANDBRAKE, MODIFICAT"
+    }, {
+        "item": "20807202.NEW",
+        "priority": "Medium Priority",
+        "onHand": 1440,
+        "usage": -630.0,
+        "leadTime": 113.5,
+        "poRisk": "Low PO Risk",
+        "ratio": 0.4,
+        "storage": "Boneyard",
+        "recStorage": "Outside Scan - Boneyard Review",
+        "desc": "SHOE, BRAKE-SINTERED, LEAF SEASON, RA3,"
+    }, {
+        "item": "22061301.NEW",
+        "priority": "Medium Priority",
+        "onHand": 300,
+        "usage": -100.0,
+        "leadTime": 0.0,
+        "poRisk": "Low PO Risk",
+        "ratio": 0.3,
+        "storage": "Pallets",
+        "recStorage": "Pallet Storage",
+        "desc": "BOOT, DUST, TBU, GE6/GO5/GO5-1/2, NEW ST"
+    }, {
+        "item": "22195430.NEW",
+        "priority": "Medium Priority",
+        "onHand": 2770,
+        "usage": -300.0,
+        "leadTime": 42.5,
+        "poRisk": "Low PO Risk",
+        "ratio": 0.1,
+        "storage": "Pallets",
+        "recStorage": "Secondary Storage / Obsolete Review",
+        "desc": "CUP, PACKING, 6 DIA, GE-6 TB, TREAD BRA"
+    }, {
+        "item": "22195430.NEW",
+        "priority": "Medium Priority",
+        "onHand": 2770,
+        "usage": -300.0,
+        "leadTime": 42.5,
+        "poRisk": "Medium PO Risk",
+        "ratio": 0.1,
+        "storage": "Pallets",
+        "recStorage": "Secondary Storage / Obsolete Review",
+        "desc": "CUP, PACKING, 6 DIA, GE-6 TB, TREAD BRA"
+    }, {
+        "item": "22299521.NEW",
+        "priority": "Medium Priority",
+        "onHand": 4060,
+        "usage": -900.0,
+        "leadTime": 34.5,
+        "poRisk": "Low PO Risk",
+        "ratio": 0.2,
+        "storage": "Drawers",
+        "recStorage": "Manual Review Required",
+        "desc": "GASKET, FLCRM PIN SIDE CVR GE-6, GO-5-1/"
+    }, {
+        "item": "22306300.NEW",
+        "priority": "Medium Priority",
+        "onHand": 2560,
+        "usage": -1400.0,
+        "leadTime": 30.5,
+        "poRisk": "Low PO Risk",
+        "ratio": 0.5,
+        "storage": "Drawers",
+        "recStorage": "Manual Review Required",
+        "desc": "GASKET, CYLINDER, TREAD BRAKE, RA3, ML,"
+    }, {
+        "item": "22457816.NEW",
+        "priority": "Medium Priority",
+        "onHand": 280,
+        "usage": -385.0,
+        "leadTime": 103.5,
+        "poRisk": "Low PO Risk",
+        "ratio": 1.4,
+        "storage": "Pallets",
+        "recStorage": "Pallet Storage",
+        "desc": "H-5 25#"
+    }, {
+        "item": "22457816.NEW",
+        "priority": "Medium Priority",
+        "onHand": 280,
+        "usage": -385.0,
+        "leadTime": 103.5,
+        "poRisk": "Low PO Risk",
+        "ratio": 1.4,
+        "storage": "Pallets",
+        "recStorage": "Pallet Storage",
+        "desc": "HB-5 Relay 10#"
+    }, {
+        "item": "22458010.NEW",
+        "priority": "Medium Priority",
+        "onHand": 20,
+        "usage": -15.0,
+        "leadTime": 397.5,
+        "poRisk": "Low PO Risk",
+        "ratio": 0.8,
+        "storage": "Drawers",
+        "recStorage": "Secondary Storage / Obsolete Review",
+        "desc": "J1 Relay"
+    }, {
+        "item": "22458010.NEW",
+        "priority": "Medium Priority",
+        "onHand": 20,
+        "usage": -15.0,
+        "leadTime": 397.5,
+        "poRisk": "Low PO Risk",
+        "ratio": 0.8,
+        "storage": "Drawers",
+        "recStorage": "Secondary Storage / Obsolete Review",
+        "desc": "J1 Safety Valve 150 #"
+    }, {
+        "item": "22458837.NEW",
+        "priority": "Medium Priority",
+        "onHand": 15,
+        "usage": -15.0,
+        "leadTime": 106.5,
+        "poRisk": "Low PO Risk",
+        "ratio": 1.0,
+        "storage": "Drawers",
+        "recStorage": "Manual Review Required",
+        "desc": "J-18 Relay Valve"
+    }, {
+        "item": "22458903.NEW",
+        "priority": "Medium Priority",
+        "onHand": 80,
+        "usage": -84.0,
+        "leadTime": 126.0,
+        "poRisk": "Low PO Risk",
+        "ratio": 1.1,
+        "storage": "Pallets",
+        "recStorage": "Secondary Storage / Obsolete Review",
+        "desc": "FA4 Magnet Valves (32V)"
+    }, {
+        "item": "22459339.NEW",
+        "priority": "Medium Priority",
+        "onHand": 124,
+        "usage": -116.0,
+        "leadTime": 109.0,
+        "poRisk": "Low PO Risk",
+        "ratio": 0.9,
+        "storage": "Pallets",
+        "recStorage": "Secondary Storage / Obsolete Review",
+        "desc": "NS1 Reducing Valve #90"
+    }, {
+        "item": "22459339.NEW",
+        "priority": "Medium Priority",
+        "onHand": 124,
+        "usage": -116.0,
+        "leadTime": 109.0,
+        "poRisk": "Low PO Risk",
+        "ratio": 0.9,
+        "storage": "Pallets",
+        "recStorage": "Secondary Storage / Obsolete Review",
+        "desc": "NS1 Reduction 90#"
+    }, {
+        "item": "22459735.NEW",
+        "priority": "Medium Priority",
+        "onHand": 175,
+        "usage": -1260.0,
+        "leadTime": 150.0,
+        "poRisk": "High PO Risk",
+        "ratio": 7.2,
+        "storage": "Pallets",
+        "recStorage": "Pallet Storage",
+        "desc": "Actuators HB"
+    }, {
+        "item": "22505794.NEW",
+        "priority": "Medium Priority",
+        "onHand": 8120,
+        "usage": -11320.0,
+        "leadTime": 36.0,
+        "poRisk": "Low PO Risk",
+        "ratio": 1.4,
+        "storage": "Pallets",
+        "recStorage": "Pallet Storage",
+        "desc": "NUT, STOP, 3/4, TREAD BRAKE, CO2, ML, G"
+    }, {
+        "item": "22525751.NEW",
+        "priority": "Medium Priority",
+        "onHand": 84,
+        "usage": -10.0,
+        "leadTime": 0.0,
+        "poRisk": "Medium PO Risk",
+        "ratio": 0.1,
+        "storage": "Pallets",
+        "recStorage": "Secondary Storage / Obsolete Review",
+        "desc": "PIN, FULCRUM, GO-5 1/2, GE-6\u00a0\u00a0\u00a0 COMET TB"
+    }, {
+        "item": "22642506.NEW",
+        "priority": "Medium Priority",
+        "onHand": 20650,
+        "usage": -1650.0,
+        "leadTime": 43.5,
+        "poRisk": "Low PO Risk",
+        "ratio": 0.1,
+        "storage": "Drawers",
+        "recStorage": "Manual Review Required",
+        "desc": "RING, RETAINER, IMPROVED STYLE, TRD BRK"
+    }, {
+        "item": "22811150.NEW",
+        "priority": "Medium Priority",
+        "onHand": 3806,
+        "usage": -295.0,
+        "leadTime": 37.5,
+        "poRisk": "Low PO Risk",
+        "ratio": 0.1,
+        "storage": "Pallets",
+        "recStorage": "Secondary Storage / Obsolete Review",
+        "desc": "SPRING, RETURN, TREAD BRAKE, CYLINDER A="
+    }, {
+        "item": "22990003.NEW",
+        "priority": "Medium Priority",
+        "onHand": 758,
+        "usage": -1544.0,
+        "leadTime": 41.0,
+        "poRisk": "Low PO Risk",
+        "ratio": 2.0,
+        "storage": "Pallets",
+        "recStorage": "Pallet Storage",
+        "desc": "HOSE ASSY, 1/2, 26.318\u00a0 ML 1/2 HOSE X"
+    }, {
+        "item": "24387201.NEW",
+        "priority": "Medium Priority",
+        "onHand": 82,
+        "usage": -70.0,
+        "leadTime": 47.5,
+        "poRisk": "Low PO Risk",
+        "ratio": 0.9,
+        "storage": "Pallets",
+        "recStorage": "Secondary Storage / Obsolete Review",
+        "desc": "HOLDER, TABLET, CHLORIDE, ADJUSTABLE, SS"
+    }, {
+        "item": "25794833.NEW",
+        "priority": "Medium Priority",
+        "onHand": 0,
+        "usage": -16.0,
+        "leadTime": 291.5,
+        "poRisk": "High PO Risk",
+        "ratio": null,
+        "storage": "Pallets",
+        "recStorage": "Secondary Storage / Obsolete Review",
+        "desc": "DOOR, MOTOR COMP. ASSY, LEFT, ML"
+    }, {
+        "item": "29045000.NEW",
+        "priority": "Medium Priority",
+        "onHand": 0,
+        "usage": -10.0,
+        "leadTime": 272.5,
+        "poRisk": "High PO Risk",
+        "ratio": null,
+        "storage": "Other / Unmapped",
+        "recStorage": "Secondary Storage / Obsolete Review",
+        "desc": "WHEEL, B/CLASS, 44 W/PLATE HOLES, A45 -"
+    }, {
+        "item": "29132262.NEW",
+        "priority": "Medium Priority",
+        "onHand": 40,
+        "usage": -100.0,
+        "leadTime": 148.0,
+        "poRisk": "Low PO Risk",
+        "ratio": 2.5,
+        "storage": "Other / Unmapped",
+        "recStorage": "Manual Review Required",
+        "desc": "AXLE, 6 X 11, BRAKE SEAT, OS, BRAKE SE"
+    }, {
+        "item": "30280000.NEW",
+        "priority": "Medium Priority",
+        "onHand": 555,
+        "usage": -732.0,
+        "leadTime": 52.0,
+        "poRisk": "Low PO Risk",
+        "ratio": 1.3,
+        "storage": "Pallets",
+        "recStorage": "Pallet Storage",
+        "desc": "DOWEL, WOOD, TAPRD, 1-1/2X 3/4X 3-3/4"
+    }, {
+        "item": "37203403.NEW",
+        "priority": "Medium Priority",
+        "onHand": 1238,
+        "usage": -1103.0,
+        "leadTime": 5.0,
+        "poRisk": "Low PO Risk",
+        "ratio": 0.9,
+        "storage": "Pallets",
+        "recStorage": "Pallet Storage",
+        "desc": "GREASE, MULTI PURPOSE, LITHIUM BASE,SOAP"
+    }, {
+        "item": "37362525.NEW",
+        "priority": "Medium Priority",
+        "onHand": 60,
+        "usage": -24.0,
+        "leadTime": 48.5,
+        "poRisk": "Low PO Risk",
+        "ratio": 0.4,
+        "storage": "Chemical / Hazardous Storage",
+        "recStorage": "Manual Review Required",
+        "desc": "LUBRICANT, SKF LGLT 2, ML"
+    }, {
+        "item": "37395505.NEW",
+        "priority": "Medium Priority",
+        "onHand": 486,
+        "usage": -1059.0,
+        "leadTime": 9.5,
+        "poRisk": "Low PO Risk",
+        "ratio": 2.2,
+        "storage": "Chemical / Hazardous Storage",
+        "recStorage": "Manual Review Required",
+        "desc": "LUBRICANT, SILICONE SPRAY, 11 0Z AEROSOL"
+    }, {
+        "item": "37725809.NEW",
+        "priority": "Medium Priority",
+        "onHand": 424,
+        "usage": -73.0,
+        "leadTime": 2.5,
+        "poRisk": "Medium PO Risk",
+        "ratio": 0.2,
+        "storage": "Pallets",
+        "recStorage": "Secondary Storage / Obsolete Review",
+        "desc": "OIL, HOUSEHOLD, MP, 3OZ CAN, LUBRICATES,"
+    }, {
+        "item": "45724091.NEW",
+        "priority": "Medium Priority",
+        "onHand": 156,
+        "usage": -60.0,
+        "leadTime": 16.5,
+        "poRisk": "Low PO Risk",
+        "ratio": 0.4,
+        "storage": "Pallets",
+        "recStorage": "Pallet Storage",
+        "desc": "TONGS, LOCKING, 16, STAINLESS, HD FOR S"
+    }, {
+        "item": "47037817.NEW",
+        "priority": "Medium Priority",
+        "onHand": 301,
+        "usage": -165.0,
+        "leadTime": 30.0,
+        "poRisk": "Low PO Risk",
+        "ratio": 0.5,
+        "storage": "Pallets",
+        "recStorage": "Secondary Storage / Obsolete Review",
+        "desc": "THREADLOCKER, HIGH-STRNTH, #271, 10ML/BT"
+    }, {
+        "item": "47037991.NEW",
+        "priority": "Medium Priority",
+        "onHand": 466,
+        "usage": -177.0,
+        "leadTime": 19.5,
+        "poRisk": "Low PO Risk",
+        "ratio": 0.4,
+        "storage": "Pallets",
+        "recStorage": "Pallet Storage",
+        "desc": "SPRAY, ADHESIVE, REMOVER, 14OZ 12BTL/CS,"
+    }, {
+        "item": "47130906.NEW",
+        "priority": "Medium Priority",
+        "onHand": 271,
+        "usage": -134.0,
+        "leadTime": 89.5,
+        "poRisk": "Low PO Risk",
+        "ratio": 0.5,
+        "storage": "Pallets",
+        "recStorage": "Pallet Storage",
+        "desc": "TABLET, CHLORINE, X SLUG, MICROPHORE U"
+    }, {
+        "item": "47237130.NEW",
+        "priority": "Medium Priority",
+        "onHand": 175,
+        "usage": -40.0,
+        "leadTime": 38.5,
+        "poRisk": "Low PO Risk",
+        "ratio": 0.2,
+        "storage": "Drawers",
+        "recStorage": "Secondary Storage / Obsolete Review",
+        "desc": "DECAL, EMERGENCY TOOLS, 7 X 3.5 ML UV"
+    }, {
+        "item": "47728761.NEW",
+        "priority": "Medium Priority",
+        "onHand": 60,
+        "usage": -66.0,
+        "leadTime": 51.0,
+        "poRisk": "Low PO Risk",
+        "ratio": 1.1,
+        "storage": "Chemical / Hazardous Storage",
+        "recStorage": "Manual Review Required",
+        "desc": "SEALER, EDGE, DECAL SCOTCHCAL BRAND 3M P"
+    }, {
+        "item": "47952411.NEW",
+        "priority": "Medium Priority",
+        "onHand": 316,
+        "usage": -61.0,
+        "leadTime": 31.5,
+        "poRisk": "Low PO Risk",
+        "ratio": 0.2,
+        "storage": "Pallets",
+        "recStorage": "Pallet Storage",
+        "desc": "DECAL, PASSENGER EMERGENCY INTERCOM, LUM"
+    }, {
+        "item": "49373721.NEW",
+        "priority": "Medium Priority",
+        "onHand": 39,
+        "usage": -12.0,
+        "leadTime": 11.5,
+        "poRisk": "Medium PO Risk",
+        "ratio": 0.3,
+        "storage": "Pallets",
+        "recStorage": "Secondary Storage / Obsolete Review",
+        "desc": "HYDROMETER, BATTERY COMPLETE, TYPE V-2-F"
+    }];
+
+    // ===== Min-Max scenario data (real exports) =====
+    const mmReplenishment = {
+        "Normal Lead Time": {
+            "Stable": {
+                "Lean": 0.014871999385304403,
+                "Balanced": 2.271217159448835,
+                "High Service": 0.019599489116468923
+            },
+            "Moderate": {
+                "Lean": 0.012553993544159547,
+                "Balanced": 2.1776393276041723,
+                "High Service": 0.015563929300877594
+            },
+            "Spiky": {"Lean": 0.01493520623496177, "Balanced": 2.2500287646001405, "High Service": 0.019637195350388936}
+        },
+        "15% Delay": {
+            "Stable": {
+                "Lean": 0.014932849343120596,
+                "Balanced": 2.2711009483768296,
+                "High Service": 0.019656530138838717
+            },
+            "Moderate": {
+                "Lean": 0.012538417179742746,
+                "Balanced": 2.176748233486324,
+                "High Service": 0.015528273954398169
+            },
+            "Spiky": {"Lean": 0.014927112464676392, "Balanced": 2.25040163674853, "High Service": 0.019614672154627647}
+        },
+        "30% Delay": {
+            "Stable": {
+                "Lean": 0.014892602003885822,
+                "Balanced": 2.2717413839485876,
+                "High Service": 0.01964298311403378
+            },
+            "Moderate": {
+                "Lean": 0.01251457456988514,
+                "Balanced": 2.1774692959270356,
+                "High Service": 0.015517964404548876
+            },
+            "Spiky": {
+                "Lean": 0.014966916163445636,
+                "Balanced": 2.2505420430548746,
+                "High Service": 0.019686382235681588
+            }
+        }
+    };
+    const mmCurrentPolicy = {
+        "Normal Lead Time": {
+            "Stable": {value: 10682811.94653163, fillRate: 0.6626471619899439},
+            "Moderate": {value: 10707016.561617134, fillRate: 0.6625579536551924},
+            "Spiky": {value: 10682927.833679775, fillRate: 0.6626290134895301}
+        },
+        "15% Delay": {
+            "Stable": {value: 10155998.967007777, fillRate: 0.6607341755594017},
+            "Moderate": {value: 10186638.995230868, fillRate: 0.6605806615028795},
+            "Spiky": {value: 10168864.944742763, fillRate: 0.6607096642043533}
+        },
+        "30% Delay": {
+            "Stable": {value: 9688104.404205533, fillRate: 0.6586432865772095},
+            "Moderate": {value: 9736022.965414774, fillRate: 0.6585640030911627},
+            "Spiky": {value: 9698160.731007498, fillRate: 0.6583326290013626}
+        }
+    };
+    const mmSelectedPolicy = {
+        "Normal Lead Time": {
+            "Stable": {
+                "Balanced": {value: 4739011.28967999, fillRate: 0.9999989705895216},
+                "High Service": {value: 250491.09357501823, fillRate: 0.9983259454761905},
+                "Lean": {value: 213296.24086058448, fillRate: 0.9929679717423748}
+            },
+            "Moderate": {
+                "Balanced": {value: 4764292.805938277, fillRate: 0.9999356917327584},
+                "High Service": {value: 255381.95930223743, fillRate: 0.9907662362773113},
+                "Lean": {value: 218836.61972168036, fillRate: 0.9798219357202491}
+            },
+            "Spiky": {
+                "Balanced": {value: 4745072.79969453, fillRate: 0.9998654535588021},
+                "High Service": {value: 250719.0692693881, fillRate: 0.9982056001321544},
+                "Lean": {value: 213503.82938078538, fillRate: 0.9928960280233489}
+            }
+        },
+        "15% Delay": {
+            "Stable": {
+                "Balanced": {value: 3988711.675925025, fillRate: 0.9999955712147298},
+                "High Service": {value: 238972.75505808217, fillRate: 0.9980207842087834},
+                "Lean": {value: 201770.29744652967, fillRate: 0.9926309172893973}
+            },
+            "Moderate": {
+                "Balanced": {value: 4007066.0506538115, fillRate: 0.9998047620100724},
+                "High Service": {value: 243329.33201831958, fillRate: 0.9887452662446145},
+                "Lean": {value: 206993.97324231963, fillRate: 0.9761921885694144}
+            },
+            "Spiky": {
+                "Balanced": {value: 4001640.76453244, fillRate: 0.9995131916525076},
+                "High Service": {value: 240383.3119335753, fillRate: 0.998163134873313},
+                "Lean": {value: 203159.1498211187, fillRate: 0.9931415844584838}
+            }
+        },
+        "30% Delay": {
+            "Stable": {
+                "Balanced": {value: 3267014.3649157234, fillRate: 0.9999625415791056},
+                "High Service": {value: 228070.0410087945, fillRate: 0.9979349479657352},
+                "Lean": {value: 190939.24155937898, fillRate: 0.9924977118107629}
+            },
+            "Moderate": {
+                "Balanced": {value: 3297071.820355153, fillRate: 0.9992729047195573},
+                "High Service": {value: 233657.52062431962, fillRate: 0.9859330326576112},
+                "Lean": {value: 197491.3406867032, fillRate: 0.9713387335346175}
+            },
+            "Spiky": {
+                "Balanced": {value: 3275093.946785827, fillRate: 0.9979892238876159},
+                "High Service": {value: 228455.41391210046, fillRate: 0.9976495491143595},
+                "Lean": {value: 191390.75974915066, fillRate: 0.9920362533469719}
+            }
+        }
+    };
+    const mmValueReduction = {
+        "Lean": [{item: "29990000.NEW", value: 2305221.6627298323}, {
+            item: "29340815.NEW",
+            value: 1650449.0113731509
+        }, {item: "20460015.NEW", value: 1228656.6250786404}, {
+            item: "20803130.NEW",
+            value: 640912.1997738864
+        }, {item: "29045000.NEW", value: 625762.003094825}, {
+            item: "20608890.NEW",
+            value: 100831.5529725774
+        }, {item: "22459070.NEW", value: 80836.48042152412}, {item: "20807202.NEW", value: 43795.11139485033}],
+        "Balanced": [{item: "29990000.NEW", value: 2286191.836302892}, {
+            item: "29340815.NEW",
+            value: 1619223.816548189
+        }, {item: "20460015.NEW", value: 1210150.701943176}, {
+            item: "20803130.NEW",
+            value: 628676.0303579808
+        }, {item: "29045000.NEW", value: 621417.3965943176}, {
+            item: "20608890.NEW",
+            value: 89663.97746953327
+        }, {item: "22459070.NEW", value: 78303.4796817981}, {item: "20807202.NEW", value: 42573.259984081684}],
+        "High Service": [{item: "29990000.NEW", value: 2244290.701656773}, {
+            item: "29340815.NEW",
+            value: 1586624.4030139423
+        }, {item: "20460015.NEW", value: 1150958.9854287165}, {
+            item: "29045000.NEW",
+            value: 609135.7484842213
+        }, {item: "20803130.NEW", value: 608821.9726190157}, {
+            item: "20608890.NEW",
+            value: 78659.05221243025
+        }, {item: "22459070.NEW", value: 75769.8088647509}, {item: "20807202.NEW", value: 39464.94043404363}]
+    };
+
+    const mmState = {leadTime: "15% Delay", demand: "Moderate", policy: "Balanced"};
+
+    function fmtDollars(n) {
+        const abs = Math.abs(n);
+        const sign = n < 0 ? "-" : "";
+        if (abs >= 1e6) return sign + "$" + (abs / 1e6).toFixed(2) + "M";
+        if (abs >= 1e3) return sign + "$" + (abs / 1e3).toFixed(0) + "K";
+        return sign + "$" + abs.toFixed(0);
+    }
+
+    function updateMinMax() {
+        const {leadTime, demand, policy} = mmState;
+        const repl = mmReplenishment[leadTime][demand][policy];
+        document.getElementById('mmReplenishment').textContent = repl.toFixed(2) + 'x';
+
+        const cur = mmCurrentPolicy[leadTime][demand];
+        const sel = mmSelectedPolicy[leadTime][demand][policy];
+        document.getElementById('mmCurrentValue').textContent = fmtDollars(cur.value);
+        document.getElementById('mmCurrentFill').textContent = (cur.fillRate * 100).toFixed(2) + '%';
+        document.getElementById('mmSelectedValue').textContent = fmtDollars(sel.value);
+        document.getElementById('mmSelectedFill').textContent = (sel.fillRate * 100).toFixed(2) + '%';
+
+        const deltaValue = cur.value - sel.value;
+        const deltaFill = (sel.fillRate - cur.fillRate) * 100;
+        const deltaDir = deltaValue >= 0 ? 'frees up' : 'increases inventory by';
+        document.getElementById('mmDelta').innerHTML =
+            `Switching to this scenario ${deltaDir} <strong>${fmtDollars(Math.abs(deltaValue))}</strong> in inventory value while ${deltaFill >= 0 ? 'improving' : 'reducing'} fill rate by <strong>${deltaFill >= 0 ? '+' : ''}${deltaFill.toFixed(1)}pt</strong>.`;
+
+        document.getElementById('mmLbPolicyNote').textContent = `(${policy})`;
+        const rows = mmValueReduction[policy];
+        const max = rows[0].value;
+        const rankColors = ['#CC0033', '#E0703C', '#D9A23B', '#8A8A8A', '#6B6B6B', '#565656', '#4A4A4A', '#3D3D3D'];
+        document.getElementById('mmLbList').innerHTML = rows.map((row, idx) => `
+      <div class="lb-row">
+        <span class="lb-rank" style="background:${rankColors[idx]}">${idx + 1}</span>
+        <span class="lb-code">${row.item}</span>
+        <div class="lb-track"><div class="lb-fill" style="width:${(row.value / max) * 100}%;background:${rankColors[idx]}"></div></div>
+        <span class="lb-val">${fmtDollars(row.value)}</span>
+      </div>
+    `).join('');
+    }
+
+    ['mmLeadTimeRow', 'mmDemandRow', 'mmPolicyRow'].forEach(rowId => {
+        document.getElementById(rowId).addEventListener('click', (e) => {
+            const btn = e.target.closest('.toggle-btn');
+            if (!btn) return;
+            const row = document.getElementById(rowId);
+            row.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            if (rowId === 'mmLeadTimeRow') mmState.leadTime = btn.dataset.v;
+            if (rowId === 'mmDemandRow') mmState.demand = btn.dataset.v;
+            if (rowId === 'mmPolicyRow') mmState.policy = btn.dataset.v;
+            updateMinMax();
+        });
+    });
+
+    updateMinMax();
+
+    // ===== Definitions -> jump to visual =====
+    function jumpToViz(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.scrollIntoView({behavior: 'smooth', block: 'center'});
+        el.classList.add('viz-flash');
+        setTimeout(() => el.classList.remove('viz-flash'), 1400);
+    }
+
+    // ===== Page-level tab switch (Current Inventory Status / Min-Max / Cycle Count) =====
+    document.querySelectorAll('.page-tabs .tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.page-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('.tab-panel').forEach(panel => {
+                panel.style.display = (panel.id === btn.dataset.tab) ? '' : 'none';
+            });
+        });
+    });
+
+    // ===== Top-level module switch (Analytics / LiDAR / Walkthrough) =====
+    const moduleButtons = {
+        btnAnalyticsModule: 'analyticsModule',
+        btnLidarModule: 'lidarModule',
+        btnWalkthroughModule: 'walkthroughModule'
+    };
+
+    Object.entries(moduleButtons).forEach(([btnId, moduleId]) => {
+        document.getElementById(btnId).addEventListener('click', () => {
+            Object.values(moduleButtons).forEach(id => {
+                document.getElementById(id).style.display = (id === moduleId) ? '' : 'none';
+            });
+            Object.keys(moduleButtons).forEach(id => {
+                document.getElementById(id).classList.toggle('active', id === btnId);
+            });
+        });
+    });
+
+    // ===== Gauge renderer (speedometer style: ticks + arc + needle) =====
+    function drawGauge(svgId, pct, colorFilled, colorRemainder, needleColor) {
+        const svg = document.getElementById(svgId);
+        const angle = -90 + (pct / 100) * 180;
+        let ticks = '';
+        for (let i = 0; i <= 8; i++) {
+            const a = -90 + i * (180 / 8);
+            const major = (i % 2 === 0);
+            const rOuter = 100, rInner = major ? 84 : 91;
+            ticks += `<line x1="100" y1="${100 - rOuter}" x2="100" y2="${100 - rInner}" stroke="#5a5a5a" stroke-width="${major ? 2 : 1}" transform="rotate(${a} 100 100)"/>`;
+        }
+        svg.innerHTML = `
+    ${ticks}
+    <path class="gauge-seg" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="${colorRemainder}" stroke-width="16" stroke-linecap="round" pathLength="100" stroke-dasharray="100 100"/>
+    <path class="gauge-seg" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="${colorFilled}" stroke-width="16" stroke-linecap="round" pathLength="100" stroke-dasharray="${pct} 100"/>
+    <line x1="100" y1="100" x2="100" y2="50" stroke="${needleColor}" stroke-width="3" stroke-linecap="round" transform="rotate(${angle} 100 100)"/>
+    <circle cx="100" cy="100" r="6" fill="${needleColor}"/>
+  `;
+    }
+
+    const activePctExact = (movement.active / (movement.active + movement.slow)) * 100;
+    drawGauge('gaugeSvg', activePctExact, '#27AE60', '#CC0033', '#F2F2F2');
+    document.getElementById('lgActive').textContent = activePctExact.toFixed(2) + '%';
+    document.getElementById('lgSlow').textContent = (100 - activePctExact).toFixed(2) + '%';
+
+    const riskPctExact = (serviceAvailability.risk / (serviceAvailability.risk + serviceAvailability.covered)) * 100;
+    drawGauge('svcSvg', riskPctExact, '#CC0033', '#27AE60', '#0A0A0A');
+    document.getElementById('svcNum').textContent = riskPctExact.toFixed(2) + '%';
+
+    // ===== Global filter state (drives search, heatmap, storage bars, item list, leaderboard) =====
+    const globalFilter = {searchTerm: '', selectedItem: null};
+    let activeStorageTab = 'High Priority';
+
+    function getFilteredItems() {
+        if (globalFilter.selectedItem) {
+            return items.filter(i => i.item === globalFilter.selectedItem);
+        }
+        const term = globalFilter.searchTerm.trim().toLowerCase();
+        if (!term) return items;
+        return items.filter(i => {
+            const haystack = [i.item, i.desc, i.priority].filter(Boolean).join(' ').toLowerCase();
+            return haystack.includes(term);
+        });
+    }
+
+    // ===== Priority x PO Risk heatmap =====
+    const HEATMAP_PRIORITIES = ['High Priority', 'Medium Priority', 'Low Priority'];
+    const HEATMAP_RISKS = ['High PO Risk', 'Low PO Risk', 'Medium PO Risk'];
+
+    // Authoritative counts from the source export (Total = distinct items; risk columns can
+    // sum to more than Total since some items carry more than one PO risk entry).
+    const CROSSTAB_BASE = {
+        'High Priority': {'High PO Risk': 32, 'Low PO Risk': 10, 'Medium PO Risk': 7},
+        'Medium Priority': {'High PO Risk': 4, 'Low PO Risk': 35, 'Medium PO Risk': 4},
+        'Low Priority': {'High PO Risk': 0, 'Low PO Risk': 9, 'Medium PO Risk': 8}
+    };
+    const CROSSTAB_BASE_ROW_TOTALS = {'High Priority': 47, 'Medium Priority': 41, 'Low Priority': 17};
+    const CROSSTAB_BASE_COL_TOTALS = {'High PO Risk': 36, 'Low PO Risk': 54, 'Medium PO Risk': 19};
+    const CROSSTAB_BASE_GRAND_TOTAL = 105;
+
+    function computeCrosstabFromItems(filteredItems) {
+        const cells = {};
+        const distinct = {};
+        HEATMAP_PRIORITIES.forEach(p => {
+            cells[p] = {};
+            HEATMAP_RISKS.forEach(r => cells[p][r] = 0);
+            distinct[p] = new Set();
+        });
+        filteredItems.forEach(i => {
+            if (!cells[i.priority]) return;
+            distinct[i.priority].add(i.item);
+            if (i.poRisk && cells[i.priority][i.poRisk] !== undefined) cells[i.priority][i.poRisk]++;
+        });
+        const rowTotals = {};
+        HEATMAP_PRIORITIES.forEach(p => rowTotals[p] = distinct[p].size);
+        const colTotals = {};
+        HEATMAP_RISKS.forEach(r => colTotals[r] = HEATMAP_PRIORITIES.reduce((s, p) => s + cells[p][r], 0));
+        const grandTotal = HEATMAP_PRIORITIES.reduce((s, p) => s + rowTotals[p], 0);
+        return {cells, rowTotals, colTotals, grandTotal};
+    }
+
+    const RISK_BASE_COLOR = {
+        'High PO Risk': [204, 0, 51],     // scarlet / red
+        'Medium PO Risk': [242, 201, 76], // amber / yellow
+        'Low PO Risk': [39, 174, 96]      // green
+    };
+
+    function heatColor(risk, v, colMax) {
+        if (!v || !colMax) return 'transparent';
+        const t = Math.min(v / colMax, 1);
+        const [r, g, b] = RISK_BASE_COLOR[risk] || [150, 150, 150];
+        return `rgba(${r},${g},${b},${0.22 + t * 0.62})`;
+    }
+
+    function renderHeatmap() {
+        const isFiltered = !!(globalFilter.searchTerm.trim() || globalFilter.selectedItem);
+        let cells, rowTotals, colTotals, grandTotal;
+        if (isFiltered) {
+            ({cells, rowTotals, colTotals, grandTotal} = computeCrosstabFromItems(getFilteredItems()));
+        } else {
+            cells = CROSSTAB_BASE;
+            rowTotals = CROSSTAB_BASE_ROW_TOTALS;
+            colTotals = CROSSTAB_BASE_COL_TOTALS;
+            grandTotal = CROSSTAB_BASE_GRAND_TOTAL;
+        }
+        const colMax = {};
+        HEATMAP_RISKS.forEach(r => colMax[r] = Math.max(1, ...HEATMAP_PRIORITIES.map(p => cells[p][r])));
+        const wrap = document.getElementById('heatmapWrap');
+        wrap.innerHTML = `
+    <table class="crosstab-table">
+      <thead>
+        <tr>
+          <th>Slotting Priority</th>
+          ${HEATMAP_RISKS.map(r => `<th>${r}</th>`).join('')}
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${HEATMAP_PRIORITIES.map(p => `
+        <tr>
+          <td>${p}</td>
+          ${HEATMAP_RISKS.map(r => `<td style="background:${heatColor(r, cells[p][r], colMax[r])};color:#fff">${cells[p][r] || '—'}</td>`).join('')}
+          <td><strong>${rowTotals[p]}</strong></td>
+        </tr>
+        `).join('')}
+        <tr class="crosstab-total-row">
+          <td>Total</td>
+          ${HEATMAP_RISKS.map(r => `<td>${colTotals[r]}</td>`).join('')}
+          <td><strong>${grandTotal}</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  `;
+    }
+
+    // ===== Storage by priority toggle (computed live from filtered items) =====
+    function renderStorageBars() {
+        const filtered = getFilteredItems().filter(i => i.priority === activeStorageTab);
+        const counts = {};
+        filtered.forEach(i => {
+            if (!i.storage) return;
+            counts[i.storage] = (counts[i.storage] || 0) + 1;
+        });
+        const barColor = {
+            'High Priority': '#CC0033',
+            'Medium Priority': '#F2C94C',
+            'Low Priority': '#27AE60'
+        }[activeStorageTab];
+        const container = document.getElementById('storageBars');
+        const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+        const max = Math.max(1, ...entries.map(e => e[1]));
+        container.innerHTML = entries.length ? entries.map(([label, n]) => `
+    <div class="storage-bar-row">
+      <span class="label">${label}</span>
+      <div class="storage-bar-track"><div class="storage-bar-fill" style="width:${(n / max) * 100}%;background:${barColor}"></div></div>
+      <span class="n">${n}</span>
+    </div>
+  `).join('') : `<p style="color:var(--dark-muted);font-size:12px">No matching items in this tier.</p>`;
+    }
+
+    document.getElementById('toggleRow').addEventListener('click', (e) => {
+        const btn = e.target.closest('.toggle-btn');
+        if (!btn) return;
+        document.querySelectorAll('#toggleRow .toggle-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeStorageTab = btn.dataset.p;
+        renderStorageBars();
+    });
+
+    // ===== Item list + secondary dropdown filters =====
+    function populateSelect(id, values) {
+        const sel = document.getElementById(id);
+        [...new Set(values)].sort().forEach(v => {
+            const opt = document.createElement('option');
+            opt.value = v;
+            opt.textContent = v;
+            sel.appendChild(opt);
+        });
+    }
+
+    populateSelect('fPriority', items.map(i => i.priority));
+    populateSelect('fStorage', items.map(i => i.storage));
+    populateSelect('fRisk', items.map(i => i.poRisk).filter(Boolean));
+
+    const riskColors = {
+        'High PO Risk': {bg: 'rgba(204,0,51,0.18)', text: '#ff6b81', border: '#E63946'},
+        'Medium PO Risk': {bg: 'rgba(242,201,74,0.18)', text: '#F2C94C', border: '#F2C94C'},
+        'Low PO Risk': {bg: 'rgba(39,174,96,0.18)', text: '#6FCF97', border: '#27AE60'}
+    };
+
+    const priorityColors = {'High Priority': '#CC0033', 'Medium Priority': '#F2994A', 'Low Priority': '#5B5B5B'};
+
+    function renderItemList() {
+        const p = document.getElementById('fPriority').value;
+        const s = document.getElementById('fStorage').value;
+        const r = document.getElementById('fRisk').value;
+
+        const filtered = getFilteredItems().filter(i => {
+            if (p && i.priority !== p) return false;
+            if (s && i.storage !== s) return false;
+            if (r && i.poRisk !== r) return false;
+            return true;
+        });
+
+        const list = document.getElementById('itemList');
+        list.innerHTML = filtered.slice(0, 100).map(i => {
+            const rc = riskColors[i.poRisk] || {bg: '#232323', text: '#9A9A9A', border: '#444'};
+            const pc = priorityColors[i.priority] || '#444';
+            return `
+      <div class="item-row" style="border-left-color:${rc.border}">
+        <div class="item-row-top">
+          <span class="code">${i.item}</span>
+          <span class="pill" style="background:${pc}22;color:${pc}">${i.priority || '—'}</span>
+          <span class="pill" style="background:#2a2a2a;color:#cfcfcf">${i.storage || '—'}</span>
+          <span class="risk" style="background:${rc.bg};color:${rc.text}">${i.poRisk || '—'}</span>
+        </div>
+        <p class="desc">${i.desc || '—'}</p>
+        <div class="meta">
+          <span>On hand: <strong>${i.onHand.toLocaleString()}</strong></span>
+          <span>Usage: <strong>${i.usage !== null ? i.usage.toLocaleString() : '—'}</strong></span>
+          <span>Lead time: <strong>${i.leadTime !== null ? i.leadTime + ' days' : '—'}</strong></span>
+          <span>Usage/inventory ratio: <strong>${i.ratio !== null ? i.ratio : '—'}</strong></span>
+          <span>Recommended storage: <strong>${i.recStorage || '—'}</strong></span>
+        </div>
+      </div>
+    `;
+        }).join('') || `<p style="color:var(--dark-muted);font-size:12.5px">No items match these filters.</p>`;
+
+        document.getElementById('itemCount').textContent = `Showing ${Math.min(filtered.length, 100)} of ${filtered.length} matching items`;
+    }
+
+    ['fPriority', 'fStorage', 'fRisk'].forEach(id => document.getElementById(id).addEventListener('change', renderItemList));
+
+    // ===== Procurement exposure leaderboard (click a bar to filter everything to that item) =====
+    function renderLeaderboard() {
+        const max = exposureTop[0].value;
+        const rankColors = ['#CC0033', '#E0703C', '#D9A23B', '#8A8A8A', '#6B6B6B', '#565656'];
+        const list = document.getElementById('lbList');
+        list.innerHTML = exposureTop.map((row, idx) => {
+            const isSelected = globalFilter.selectedItem === row.item;
+            return `
+    <div class="lb-row" data-item="${row.item}" style="cursor:pointer;${isSelected ? 'outline:2px solid var(--scarlet);background:#252525' : ''}">
+      <span class="lb-rank" style="background:${rankColors[idx]}">${idx + 1}</span>
+      <span class="lb-code">${row.item}</span>
+      <div class="lb-track"><div class="lb-fill" style="width:${(row.value / max) * 100}%;background:${rankColors[idx]}"></div></div>
+      <span class="lb-val">$${(row.value / 1e6).toFixed(1)}M</span>
+    </div>
+  `;
+        }).join('');
+
+        list.querySelectorAll('.lb-row').forEach(row => {
+            row.addEventListener('click', () => {
+                const code = row.dataset.item;
+                if (globalFilter.selectedItem === code) {
+                    globalFilter.selectedItem = null;
+                } else {
+                    globalFilter.selectedItem = code;
+                    globalFilter.searchTerm = '';
+                    document.getElementById('globalSearch').value = code;
+                }
+                renderAll();
+            });
+        });
+    }
+
+    // ===== Wire up the global search box and orchestrate re-renders =====
+    function updateFilterStatus() {
+        const status = document.getElementById('globalFilterStatus');
+        if (globalFilter.selectedItem) {
+            status.innerHTML = `Filtered to <strong>${globalFilter.selectedItem}</strong> — <a href="#" id="clearFilterLink" style="color:var(--scarlet);text-decoration:underline">clear</a>`;
+        } else if (globalFilter.searchTerm.trim()) {
+            status.innerHTML = `Searching for "<strong>${globalFilter.searchTerm.trim()}</strong>" — <a href="#" id="clearFilterLink" style="color:var(--scarlet);text-decoration:underline">clear</a>`;
+        } else {
+            status.textContent = '';
+        }
+        const clearLink = document.getElementById('clearFilterLink');
+        if (clearLink) {
+            clearLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                globalFilter.searchTerm = '';
+                globalFilter.selectedItem = null;
+                document.getElementById('globalSearch').value = '';
+                renderAll();
+            });
+        }
+    }
+
+    function renderAll() {
+        renderHeatmap();
+        renderStorageBars();
+        renderItemList();
+        renderLeaderboard();
+        updateFilterStatus();
+    }
+
+    document.getElementById('globalSearch').addEventListener('input', (e) => {
+        globalFilter.selectedItem = null;
+        globalFilter.searchTerm = e.target.value;
+        renderAll();
+    });
+
+    renderAll();
+</script>
+
+
+</body>
+</html>
