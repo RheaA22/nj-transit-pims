@@ -172,14 +172,34 @@
         }
 
         .explain-placeholder {
-            border: 1px dashed var(--border-strong);
-            border-radius: 8px;
-            padding: 14px 16px;
-            margin-bottom: 22px;
-            color: var(--slate);
-            font-size: 13px;
-            font-style: italic;
-            background: rgba(0, 0, 0, 0.02);
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-top: 3px solid var(--scarlet);
+            border-radius: 10px;
+            padding: 24px 28px;
+            margin-bottom: 28px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+        }
+
+        .explain-placeholder::before {
+            content: "Overview";
+            display: block;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--scarlet-hover);
+            margin-bottom: 10px;
+        }
+
+        .explain-placeholder-text {
+            color: var(--ink);
+            font-size: 15.5px;
+            font-weight: 400;
+            line-height: 1.7;
+            max-width: none;
+            margin: 0;
         }
 
         /* ---- 3D scan link card ---- */
@@ -517,6 +537,132 @@
 
         .compare-delta strong {
             color: var(--scarlet);
+        }
+
+        /* ---- Policy Impact duel visual ---- */
+        .policy-duel {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .duel-side {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #1c1c1c;
+            border-radius: 14px;
+            padding: 22px 26px;
+            flex: 1;
+            min-width: 190px;
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+            cursor: default;
+        }
+
+        .duel-side:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 26px rgba(0, 0, 0, 0.45);
+        }
+
+        .duel-side.selected {
+            box-shadow: 0 0 0 1px rgba(39, 174, 96, 0.35) inset;
+        }
+
+        .duel-label {
+            font-size: 11px;
+            font-family: 'IBM Plex Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--dark-muted);
+            margin: 0 0 10px;
+        }
+
+        .duel-gauge-box {
+            width: 150px;
+            height: 86px;
+        }
+
+        .duel-pct {
+            font-family: 'Archivo', sans-serif;
+            font-weight: 800;
+            font-size: 22px;
+            margin: 4px 0 0;
+        }
+
+        .duel-pct-sub {
+            font-size: 10px;
+            color: var(--dark-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin: 1px 0 0;
+        }
+
+        .duel-value {
+            font-family: 'Archivo', sans-serif;
+            font-weight: 800;
+            font-size: 23px;
+            margin: 14px 0 2px;
+            padding-top: 12px;
+            border-top: 1px solid #2c2c2c;
+            width: 100%;
+            text-align: center;
+        }
+
+        .duel-value-sub {
+            font-size: 11px;
+            color: var(--dark-muted);
+            margin: 0;
+        }
+
+        .duel-vs-badge {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: #000;
+            border: 2px solid var(--scarlet);
+            color: var(--scarlet);
+            font-family: 'Archivo', sans-serif;
+            font-weight: 800;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 700px) {
+            .policy-duel {
+                flex-direction: column;
+            }
+
+            .duel-vs-badge {
+                transform: rotate(90deg);
+            }
+        }
+
+        /* ---- scrollable leaderboards ---- */
+        #lbList, #mmLbList {
+            max-height: 320px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .lb-row.clickable {
+            cursor: pointer;
+        }
+
+        /* ---- item detail panel ---- */
+        .item-detail-empty {
+            font-size: 12.5px;
+            color: var(--dark-muted);
+            padding: 18px 4px;
+        }
+
+        .mm-rec-selected-row td {
+            background: rgba(204, 0, 51, 0.16) !important;
+            box-shadow: inset 3px 0 0 var(--scarlet);
         }
 
         .viz-grid {
@@ -1037,8 +1183,11 @@
     <!-- ================= ANALYTICS MODULE ================= -->
     <div id="analyticsModule">
 
-        <div class="explain-placeholder">Add a short explanation of this dashboard here — what it covers, how often it
-            updates, and what decisions it's meant to support.
+        <div class="explain-placeholder"><p class="explain-placeholder-text">This Space Optimization dashboard tracks
+            current inventory
+            levels, storage placement, and optimization models across CAIT's transit parts catalog, and models min-max
+            replenishment policies to show where inventory value could be reduced without compromising service
+            levels. Data shown here is illustrative, built to demonstrate what's possible with CAIT's analytics.</p>
         </div>
 
         <div class="page-tabs">
@@ -1225,8 +1374,9 @@
 
                         <!-- 6. Procurement exposure -->
                         <div class="dcard full" id="viz-exposure">
-                            <p class="dcard-title">Procurement exposure — top items</p>
-                            <p class="dcard-cap">Items carrying the largest open purchase-value exposure. Click a bar
+                            <p class="dcard-title">Procurement exposure — all items</p>
+                            <p class="dcard-cap">All 92 tracked items ranked by open purchase-value exposure, scroll for
+                                the full list. Click a bar
                                 to filter the visuals above to that item; click it again to clear.</p>
                             <div id="lbList"></div>
                         </div>
@@ -1247,30 +1397,46 @@
                         <span class="doc-section-tag">Min-Max Optimization</span>
                     </div>
                     <div class="term-grid">
-                        <div class="term-item">
+                        <div class="term-item" onclick="jumpToViz('viz-mm-kpis')" role="button" tabindex="0">
                             <div class="term-title">NIVR (Net Inventory Value Reduction)</div>
                             <p class="term-desc">Estimated total capital freed up when shifting from current policy to
-                                the selected min-max policy.</p>
+                                the selected min-max policy — shown in the KPI row above.</p>
                         </div>
-                        <div class="term-item">
+                        <div class="term-item" onclick="jumpToViz('viz-scenario-selector')" role="button" tabindex="0">
                             <div class="term-title">Lead Time Variability</div>
                             <p class="term-desc">Simulated vendor supply delay parameters (Normal, 15% Delay, 30% Delay)
                                 used to stress-test safety stock thresholds.</p>
                         </div>
-                        <div class="term-item">
+                        <div class="term-item" onclick="jumpToViz('viz-scenario-selector')" role="button" tabindex="0">
                             <div class="term-title">Demand Profile</div>
                             <p class="term-desc">A simulated demand pattern (Stable, Moderate, Spiky) representing how
                                 predictable or volatile item usage is expected to be.</p>
                         </div>
-                        <div class="term-item">
+                        <div class="term-item" onclick="jumpToViz('viz-scenario-selector')" role="button" tabindex="0">
                             <div class="term-title">Policy Type</div>
                             <p class="term-desc">The replenishment strategy being modeled — Balanced, High Service, or
                                 Lean — each trading off inventory cost against service level.</p>
                         </div>
-                        <div class="term-item">
+                        <div class="term-item" onclick="jumpToViz('viz-policy-duel')" role="button" tabindex="0">
+                            <div class="term-title">Fill Rate</div>
+                            <p class="term-desc">The share of demand met from on-hand stock without a stockout — shown
+                                as the dial in the Policy Impact visual, colored red/amber/green by how close it is to
+                                full coverage.</p>
+                        </div>
+                        <div class="term-item" onclick="jumpToViz('viz-mm-leaderboard')" role="button" tabindex="0">
+                            <div class="term-title">Inventory Value Reduction</div>
+                            <p class="term-desc">The dollar drop in required inventory value for a specific item under
+                                the selected Policy Type. Click an item below to see its detail.</p>
+                        </div>
+                        <div class="term-item" onclick="jumpToViz('viz-stockout-dist')" role="button" tabindex="0">
+                            <div class="term-title">Stockout-Day Risk</div>
+                            <p class="term-desc">How many days, on average, an item's on-hand stock is expected to run
+                                out before the next delivery under the selected scenario.</p>
+                        </div>
+                        <div class="term-item" onclick="jumpToViz('viz-mm-recommendation')" role="button" tabindex="0">
                             <div class="term-title">Min-Max Recommendation</div>
-                            <p class="term-desc">The suggested minimum and maximum stock thresholds for an item under
-                                the selected scenario, compared against current thresholds.</p>
+                            <p class="term-desc">Current min/max thresholds per item, alongside the recommended min/max
+                                under the Balanced policy.</p>
                         </div>
                     </div>
                 </div>
@@ -1282,11 +1448,11 @@
                     <ol class="howto-list">
                         <li><span class="howto-num">1</span><span>The KPI cards summarize the optimization model as a whole: how many parts were evaluated, the total capital that could be freed up (NIVR), and how many recommendations were validated.</span>
                         </li>
-                        <li><span class="howto-num">2</span><span>Use the Lead Time, Demand Profile, and Policy Type toggles below to pick a scenario — the Replenishment Workload multiple, the policy comparison, and the exposure leaderboard all update to match.</span>
+                        <li><span class="howto-num">2</span><span>Use the Lead Time, Demand Profile, and Policy Type toggles below to pick a scenario.</span>
                         </li>
-                        <li><span class="howto-num">3</span><span>The Current vs. Selected Policy card compares today's inventory value and fill rate against what the chosen scenario would produce.</span>
+                        <li><span class="howto-num">3</span><span>The Policy Impact dials compare today's fill rate and inventory value against what the chosen scenario would produce. Each dial is colored red/amber/green by how close that policy gets to full demand coverage.</span>
                         </li>
-                        <li><span class="howto-num">4</span><span>The Inventory Value Reduction leaderboard ranks the items driving the largest savings under the selected Policy Type — this ranking depends only on Policy Type, not Lead Time or Demand.</span>
+                        <li><span class="howto-num">4</span><span>The Inventory Value Reduction leaderboard ranks the items driving the largest savings under the selected Policy Type. Click an item to see its detail card below, cross-referenced with its priority, storage, and PO risk from the Current Inventory Status tab; click it again to clear.</span>
                         </li>
                     </ol>
                 </div>
@@ -1297,7 +1463,7 @@
                 <div class="dark-section">
                     <p class="eyebrow">Min-Max Optimization</p>
 
-                    <div class="dark-kpi-row cols-4">
+                    <div class="dark-kpi-row cols-4" id="viz-mm-kpis">
                         <div class="dark-kpi"><p class="val">92</p>
                             <p class="lbl">Parts evaluated</p></div>
                         <div class="dark-kpi"><p class="val" style="color:#fff">$5.53M</p>
@@ -1311,7 +1477,7 @@
                     <div class="viz-grid">
 
                         <!-- Scenario selector -->
-                        <div class="dcard full">
+                        <div class="dcard full" id="viz-scenario-selector">
                             <p class="dcard-title">Scenario selector</p>
                             <p class="dcard-cap">Choose a Lead Time, Demand Profile, and Policy Type to see how the
                                 recommendation changes.</p>
@@ -1343,27 +1509,33 @@
                             </div>
                         </div>
 
-                        <!-- Policy comparison -->
-                        <div class="dcard full">
-                            <p class="dcard-title">Current vs. selected policy</p>
-                            <p class="dcard-cap">Inventory value and fill rate under today's policy vs. the selected
-                                scenario.</p>
-                            <div class="policy-compare">
-                                <div class="compare-block">
-                                    <p class="compare-label">Current Policy</p>
-                                    <p class="compare-val" id="mmCurrentValue">$10.19M</p>
-                                    <p class="compare-sub">Inventory value</p>
-                                    <p class="compare-val" id="mmCurrentFill" style="margin-top:10px">66.06%</p>
-                                    <p class="compare-sub">Fill rate</p>
+                        <!-- Policy Impact -->
+                        <div class="dcard full" id="viz-policy-duel">
+                            <p class="dcard-title">Policy impact — current vs. selected</p>
+                            <p class="dcard-cap">Fill rate and inventory value under today's policy vs. the selected
+                                scenario. Dial color reflects how close each policy gets to full demand coverage.</p>
+                            <div class="policy-duel">
+                                <div class="duel-side">
+                                    <p class="duel-label">Current Policy</p>
+                                    <div class="duel-gauge-box">
+                                        <svg id="mmCurrentGaugeSvg" viewBox="0 0 200 115" width="150" height="86"></svg>
+                                    </div>
+                                    <p class="duel-pct" id="mmCurrentFill">66.06%</p>
+                                    <p class="duel-pct-sub">fill rate</p>
+                                    <p class="duel-value" id="mmCurrentValue">$10.19M</p>
+                                    <p class="duel-value-sub">Inventory value</p>
                                 </div>
-                                <div class="compare-arrow">→</div>
-                                <div class="compare-block">
-                                    <p class="compare-label">Selected Policy</p>
-                                    <p class="compare-val" id="mmSelectedValue" style="color:#27AE60">$4.01M</p>
-                                    <p class="compare-sub">Inventory value</p>
-                                    <p class="compare-val" id="mmSelectedFill" style="margin-top:10px;color:#27AE60">
-                                        99.98%</p>
-                                    <p class="compare-sub">Fill rate</p>
+                                <div class="duel-vs-badge">VS</div>
+                                <div class="duel-side selected">
+                                    <p class="duel-label">Selected Policy</p>
+                                    <div class="duel-gauge-box">
+                                        <svg id="mmSelectedGaugeSvg" viewBox="0 0 200 115" width="150"
+                                             height="86"></svg>
+                                    </div>
+                                    <p class="duel-pct" id="mmSelectedFill">99.98%</p>
+                                    <p class="duel-pct-sub">fill rate</p>
+                                    <p class="duel-value" id="mmSelectedValue" style="color:#27AE60">$4.01M</p>
+                                    <p class="duel-value-sub">Inventory value</p>
                                 </div>
                             </div>
                             <div class="compare-delta" id="mmDelta">
@@ -1373,11 +1545,35 @@
                         </div>
 
                         <!-- Inventory Value Reduction leaderboard -->
-                        <div class="dcard full">
+                        <div class="dcard full" id="viz-mm-leaderboard">
                             <p class="dcard-title">Inventory value reduction — top items</p>
                             <p class="dcard-cap">Items driving the largest value reduction under the selected Policy
-                                Type. <span id="mmLbPolicyNote">(Balanced)</span></p>
+                                Type. <span id="mmLbPolicyNote">(Balanced)</span> Click an item for detail; click again
+                                to clear.</p>
                             <div id="mmLbList"></div>
+                        </div>
+
+                        <!-- Selected item detail -->
+                        <div class="dcard full" id="viz-mm-item-detail">
+                            <p class="dcard-title">Selected item detail</p>
+                            <p class="dcard-cap">Cross-referenced with the item's slotting priority, storage, and PO
+                                risk from the Current Inventory Status tab. Also highlights that item's row in the
+                                Min-Max Recommendation table below.</p>
+                            <div id="mmItemDetail"></div>
+                        </div>
+
+                        <!-- Min-Max Recommendation table -->
+                        <div class="dcard full" id="viz-mm-recommendation">
+                            <p class="dcard-title">Min-max recommendation — current vs. recommended thresholds</p>
+                            <p class="dcard-cap">Current min/max per item, and recommended min/max under the
+                                <strong>Balanced</strong> policy. Switch the Policy Type toggle above to compare.</p>
+                            <div class="filter-row">
+                                <label class="sr-only" for="mmRecSearch">Search Min-Max Recommendation table</label>
+                                <input class="dsearch" id="mmRecSearch" style="margin-left:0;width:100%"
+                                       placeholder="Search item code or description">
+                            </div>
+                            <div id="mmRecTableWrap" style="max-height:340px;overflow-y:auto"></div>
+                            <p class="item-count" id="mmRecCount"></p>
                         </div>
 
                         <!-- Stockout-Day Risk Distribution -->
@@ -1392,13 +1588,6 @@
                         </div>
 
                     </div>
-
-                    <p class="dark-section-note" style="margin-top:8px">The item-level Min-Max Recommendation table
-                        (current vs. recommended thresholds per item) is still pending. The underlying export ties
-                        wildly different items — e.g. a windshield and a brake pad — to identical min/max and value
-                        reduction figures for a given scenario, the same many-to-many join issue noted below for the
-                        Stockout-Day Risk Distribution. The table needs its min/max measure names confirmed in DAX
-                        query view, at item grain, before it can be trusted.</p>
                 </div>
             </div>
             <!-- ============ END TAB: MIN-MAX OPTIMIZATION ============ -->
@@ -1416,7 +1605,7 @@
                     </div>
                     <div class="term-grid">
                         <div class="term-item">
-                            <div class="term-title">Definitions pending</div>
+                            <div class="term-title">Definitions not yet available</div>
                         </div>
                     </div>
                 </div>
@@ -1455,7 +1644,9 @@
 
     <!-- ================= LIDAR MODULE ================= -->
     <div id="lidarModule" style="display:none">
-        <div class="explain-placeholder">Add a short explanation of these facility LiDAR scans here
+        <div class="explain-placeholder"><p class="explain-placeholder-text">This tab shows LiDAR scans of the MMC
+            facility, so you can see where inventory is physically stored, both as a 3D point-cloud view of the
+            boneyard and as an interactive map of the wider facility.</p>
         </div>
 
         <div class="doc-section scan-link-card">
@@ -1482,8 +1673,9 @@
 
     <!-- ================= WALKTHROUGH MODULE ================= -->
     <div id="walkthroughModule" style="display:none">
-        <div class="explain-placeholder">A short narrated tour of example insights this dashboard can surface —
-            stockout timing, procurement exposure, and storage-location mismatches.
+        <div class="explain-placeholder"><p class="explain-placeholder-text">This video is a narrated presentation of
+            the Space Optimization dashboard in Power BI, walking through example scenarios of the insights it can
+            surface.</p>
         </div>
 
         <div class="doc-section video-frame" style="padding:0">
@@ -1495,6 +1687,7 @@
                     height="1080"
                     style="width:100%;display:block;background:#000">
                 <source src="Dashboard%20Walkthrough%20Video.mp4" type="video/mp4">
+                Your browser doesn't support embedded video.
             </video>
         </div>
     </div>
@@ -1521,14 +1714,112 @@
     // ===== Real exported data =====
     const movement = {active: 59, slow: 46};
     const serviceAvailability = {risk: 93, covered: 13};
-    const exposureTop = [
-        {item: "29990000.NEW", value: 394382625},
-        {item: "25990239.NEW", value: 360985000},
-        {item: "29340815.NEW", value: 278517506},
-        {item: "29045000.NEW", value: 227319500},
-        {item: "20990070.NEW", value: 143327646},
-        {item: "25794830.NEW", value: 80761186}
-    ];
+    const exposureTop = [{item: "29990000.NEW", value: 394382625.0}, {
+        item: "25990239.NEW",
+        value: 360985000.0
+    }, {item: "29340815.NEW", value: 278517506.40000004}, {
+        item: "29045000.NEW",
+        value: 227319500.0
+    }, {item: "20990070.NEW", value: 143327645.99999997}, {
+        item: "25794830.NEW",
+        value: 80761185.7
+    }, {item: "25794833.NEW", value: 78735403.44999999}, {
+        item: "20608890.NEW",
+        value: 77386995.0
+    }, {item: "29990001.NEW", value: 69283371.30000001}, {
+        item: "22459463.NEW",
+        value: 39604800.0
+    }, {item: "22459702.NEW", value: 27827436.0}, {item: "22458294.NEW", value: 27734375.0}, {
+        item: "20990017.NEW",
+        value: 27587940.000000004
+    }, {item: "22459735.NEW", value: 22018500.0}, {
+        item: "22521056.NEW",
+        value: 17324741.500000004
+    }, {item: "11990014.NEW", value: 16939952.64}, {item: "22458010.NEW", value: 16191288.0}, {
+        item: "20807202.NEW",
+        value: 14750460.0
+    }, {item: "22459478.NEW", value: 14639523.9}, {item: "22611300.NEW", value: 14536349.0}, {
+        item: "20990002.NEW",
+        value: 14453802.0
+    }, {item: "29132262.NEW", value: 14449536.0}, {item: "22456778.NEW", value: 14288820.0}, {
+        item: "20803130.NEW",
+        value: 11253836.8
+    }, {item: "47130906.NEW", value: 10315322.5}, {item: "22459347.NEW", value: 9512724.0}, {
+        item: "22195430.NEW",
+        value: 9381543.5
+    }, {item: "22458448.NEW", value: 9132864.000000002}, {
+        item: "22456613.NEW",
+        value: 6646995.0
+    }, {item: "25706033.NEW", value: 6638340.8}, {item: "22844805.NEW", value: 5854056.0}, {
+        item: "22060911.NEW",
+        value: 5617491.2
+    }, {item: "20827801.NEW", value: 5007775.0}, {item: "22459059.NEW", value: 4980213.0}, {
+        item: "20040968.NEW",
+        value: 4679034.524999999
+    }, {item: "12137020.NEW", value: 4410782.75}, {item: "22000078.NEW", value: 4054360.8}, {
+        item: "20160250.NEW",
+        value: 3994893.6
+    }, {item: "22458903.NEW", value: 3688272.0}, {
+        item: "22457816.NEW",
+        value: 3651479.999999999
+    }, {item: "22459825.NEW", value: 3494205.0000000005}, {
+        item: "22811150.NEW",
+        value: 3288120.0
+    }, {item: "22028904.NEW", value: 3147657.1}, {item: "20460015.NEW", value: 2975000.0}, {
+        item: "22458994.NEW",
+        value: 2526720.0
+    }, {item: "22990003.NEW", value: 2416758.12}, {item: "22459495.NEW", value: 2328750.0}, {
+        item: "20803113.NEW",
+        value: 1966491.45
+    }, {item: "22459364.NEW", value: 1948716.0}, {item: "22812109.NEW", value: 1921064.88}, {
+        item: "22458258.NEW",
+        value: 1844866.35
+    }, {item: "20741305.NEW", value: 1770408.9}, {item: "22459339.NEW", value: 1674240.0}, {
+        item: "22460321.NEW",
+        value: 1601250.0
+    }, {item: "22251494.NEW", value: 1598493.75}, {item: "22459781.NEW", value: 1249627.5}, {
+        item: "45293501.NEW",
+        value: 1006470.0
+    }, {item: "24387201.NEW", value: 911472.75}, {
+        item: "20041164.NEW",
+        value: 880229.0249999999
+    }, {item: "22990101.NEW", value: 838152.0000000001}, {item: "22642506.NEW", value: 738108.0}, {
+        item: "22218209.NEW",
+        value: 685980.0
+    }, {item: "22418412.NEW", value: 408210.0}, {item: "22458837.NEW", value: 358958.25}, {
+        item: "22460148.NEW",
+        value: 309252.75
+    }, {item: "20238759.NEW", value: 307125.0}, {
+        item: "20620825.NEW",
+        value: 266939.19999999995
+    }, {item: "22306300.NEW", value: 178586.345}, {
+        item: "47037991.NEW",
+        value: 126781.19999999998
+    }, {item: "22299521.NEW", value: 123744.6}, {item: "47237019.NEW", value: 123574.08}, {
+        item: "37362525.NEW",
+        value: 114266.0
+    }, {item: "47037817.NEW", value: 89024.99999999999}, {
+        item: "47728761.NEW",
+        value: 69156.00000000001
+    }, {item: "45724091.NEW", value: 59756.4}, {item: "30280000.NEW", value: 56160.0}, {
+        item: "19076553.NEW",
+        value: 52644.02
+    }, {item: "37395505.NEW", value: 36443.52}, {item: "22505794.NEW", value: 34444.8}, {
+        item: "47237130.NEW",
+        value: 32266.08
+    }, {item: "37203403.NEW", value: 26200.000000000004}, {
+        item: "20160251.NEW",
+        value: 26069.04
+    }, {item: "47952411.NEW", value: 24232.32}, {item: "47000789.NEW", value: 12110.0}, {
+        item: "49373721.NEW",
+        value: 10091.25
+    }, {item: "45294145.NEW", value: 6120.0}, {item: "37725809.NEW", value: 4704.0}, {
+        item: "22061301.NEW",
+        value: 0.0
+    }, {item: "22453241.NEW", value: 0.0}, {item: "22459070.NEW", value: 0.0}, {
+        item: "22525751.NEW",
+        value: 0.0
+    }, {item: "22990018.NEW", value: 0.0}];
     const items = [{
         "item": "20041164.NEW",
         "priority": "High Priority",
@@ -3361,6 +3652,1271 @@
     };
 
     const mmState = {leadTime: "15% Delay", demand: "Moderate", policy: "Balanced"};
+    let mmSelectedItem = null;
+
+    const mmCurrentThresholds = [{
+        "item": "11990014.NEW",
+        "desc": "WINDSHIELD, ML",
+        "cur_min": 21.0,
+        "cur_max": 30.0
+    }, {
+        "item": "12137020.NEW",
+        "desc": "PAD, RADIUS ROD METAL BACKED NEOPRENE, R",
+        "cur_min": 601.0,
+        "cur_max": 800.0
+    }, {
+        "item": "19076553.NEW",
+        "desc": "BOLT, TIE, OFF SNAP SPECIAL, CO2/4/5, RA",
+        "cur_min": 1101.0,
+        "cur_max": 4000.0
+    }, {
+        "item": "20040968.NEW",
+        "desc": "ABSORBER, SHOCK, HORIZONTAL, ALL COMETS",
+        "cur_min": 445.0,
+        "cur_max": 888.0
+    }, {
+        "item": "20041164.NEW",
+        "desc": "SHOCK ABSORBER, VERTICAL, ALL COMETS",
+        "cur_min": 445.0,
+        "cur_max": 888.0
+    }, {
+        "item": "20160250.NEW",
+        "desc": "YOKE, COUPLER ASSY, CO2 SEC# 3/FIG# 1/IN",
+        "cur_min": 16.0,
+        "cur_max": 30.0
+    }, {
+        "item": "20160251.NEW",
+        "desc": "PIN, NEW COUPLER, CO2/4, SEC# 3/FIG# 1/",
+        "cur_min": 8.0,
+        "cur_max": 12.0
+    }, {
+        "item": "20238759.NEW",
+        "desc": "BUMPER, LATERAL, RUBBER, TRUCK, CO2/4, 4",
+        "cur_min": 51.0,
+        "cur_max": 100.0
+    }, {
+        "item": "20460015.NEW",
+        "desc": "PAD SET, BRAKE, SINTERED, LEAF, A45/46/4",
+        "cur_min": 1301.0,
+        "cur_max": 2000.0
+    }, {
+        "item": "20608890.NEW",
+        "desc": "PAD SET, BRAKE, ALL COMETS, SET INCLUDES",
+        "cur_min": 13500.0,
+        "cur_max": 20250.0
+    }, {
+        "item": "20620825.NEW",
+        "desc": "PIN, HOLDING, PAWL, HANDBRAKE, MODIFICAT",
+        "cur_min": 61.0,
+        "cur_max": 80.0
+    }, {
+        "item": "20741305.NEW",
+        "desc": "SHOE, BRAKE 2\" W/REJECT LUG, AND END STO",
+        "cur_min": 1601.0,
+        "cur_max": 3000.0
+    }, {
+        "item": "20803113.NEW",
+        "desc": "SHOE, BRAKE, V-490, CO2/4/5, 136/PALLET",
+        "cur_min": 2501.0,
+        "cur_max": 3400.0
+    }, {
+        "item": "20803130.NEW",
+        "desc": "SHOE, BRAKE V-578, IN MODIFIED CRATE PRE",
+        "cur_min": 9880.0,
+        "cur_max": 12160.0
+    }, {
+        "item": "20807202.NEW",
+        "desc": "SHOE, BRAKE-SINTERED, LEAF SEASON, RA3,",
+        "cur_min": 601.0,
+        "cur_max": 1200.0
+    }, {
+        "item": "20827801.NEW",
+        "desc": "SPRING ASSY, COUPLER, BEAM GUIDE, CO2, M",
+        "cur_min": 21.0,
+        "cur_max": 40.0
+    }, {
+        "item": "20990002.NEW",
+        "desc": "SHOCK, ABSORBER, VERTICAL PRIMARY, SUSPE",
+        "cur_min": 401.0,
+        "cur_max": 560.0
+    }, {
+        "item": "20990017.NEW",
+        "desc": "SPRING, OUTER, PRIMARY SUSPENSION, ML",
+        "cur_min": 101.0,
+        "cur_max": 400.0
+    }, {
+        "item": "20990070.NEW",
+        "desc": "PAD SET, BRAKE, ML, 240 PAIR/PLT",
+        "cur_min": 16000.0,
+        "cur_max": 18000.0
+    }, {"item": "22000078.NEW", "desc": "J1-2-1", "cur_min": 81.0, "cur_max": 120.0}, {
+        "item": "22028904.NEW",
+        "desc": "BEARING, SPACER-OIL CUSHION, GE-6, GJ-5-",
+        "cur_min": 51.0,
+        "cur_max": 100.0
+    }, {
+        "item": "22060911.NEW",
+        "desc": "BOLT, GREASE FITTING, BRAKE HEAD GE-6 &",
+        "cur_min": 161.0,
+        "cur_max": 200.0
+    }, {
+        "item": "22061301.NEW",
+        "desc": "BOOT, DUST, TBU, GE6/GO5/GO5-1/2, NEW ST",
+        "cur_min": 201.0,
+        "cur_max": 400.0
+    }, {
+        "item": "22195430.NEW",
+        "desc": "CUP, PACKING, 6\" DIA, GE-6 TB, TREAD BRA",
+        "cur_min": 201.0,
+        "cur_max": 300.0
+    }, {
+        "item": "22218209.NEW",
+        "desc": "On/off Indicators",
+        "cur_min": 401.0,
+        "cur_max": 800.0
+    }, {"item": "22251494.NEW", "desc": "M/R Filter", "cur_min": 51.0, "cur_max": 90.0}, {
+        "item": "22299521.NEW",
+        "desc": "GASKET, FLCRM PIN SIDE CVR GE-6, GO-5-1/",
+        "cur_min": 500.0,
+        "cur_max": 1000.0
+    }, {
+        "item": "22306300.NEW",
+        "desc": "GASKET, CYLINDER, TREAD BRAKE, RA3, ML,",
+        "cur_min": 601.0,
+        "cur_max": 1200.0
+    }, {
+        "item": "22418412.NEW",
+        "desc": "HOSE, 7/8\" ID, 1\" MALE PIPE EA, END, LS",
+        "cur_min": 301.0,
+        "cur_max": 500.0
+    }, {
+        "item": "22453241.NEW",
+        "desc": "90 # Volume Check",
+        "cur_min": 111.0,
+        "cur_max": 150.0
+    }, {
+        "item": "22456613.NEW",
+        "desc": "Dead Engine Cutout",
+        "cur_min": 501.0,
+        "cur_max": 620.0
+    }, {
+        "item": "22456778.NEW",
+        "desc": "Combination Cutout-Strainer",
+        "cur_min": 101.0,
+        "cur_max": 200.0
+    }, {"item": "22457816.NEW", "desc": "H-5 25#", "cur_min": 251.0, "cur_max": 400.0}, {
+        "item": "22458010.NEW",
+        "desc": "J1 Relay",
+        "cur_min": 25.0,
+        "cur_max": 40.0
+    }, {
+        "item": "22458258.NEW",
+        "desc": "N-3-E Magnet Valve",
+        "cur_min": 171.0,
+        "cur_max": 250.0
+    }, {"item": "22458294.NEW", "desc": "Quick Service", "cur_min": 41.0, "cur_max": 80.0}, {
+        "item": "22458448.NEW",
+        "desc": "N-1-E Magnet Valve",
+        "cur_min": 251.0,
+        "cur_max": 450.0
+    }, {"item": "22458837.NEW", "desc": "J-18 Relay Valve", "cur_min": 21.0, "cur_max": 30.0}, {
+        "item": "22458903.NEW",
+        "desc": "FA4 Magnet Valves (32V)",
+        "cur_min": 41.0,
+        "cur_max": 80.0
+    }, {
+        "item": "22458994.NEW",
+        "desc": "Horizontal Leveling Valves",
+        "cur_min": 451.0,
+        "cur_max": 600.0
+    }, {
+        "item": "22459059.NEW",
+        "desc": "B-1 Quick Service Valve",
+        "cur_min": 201.0,
+        "cur_max": 300.0
+    }, {"item": "22459070.NEW", "desc": "VX Vent Valves", "cur_min": 801.0, "cur_max": 900.0}, {
+        "item": "22459339.NEW",
+        "desc": "NS1 Reducing Valve #90",
+        "cur_min": 121.0,
+        "cur_max": 160.0
+    }, {
+        "item": "22459347.NEW",
+        "desc": "B-3-B Conductor Valves",
+        "cur_min": 301.0,
+        "cur_max": 500.0
+    }, {"item": "22459364.NEW", "desc": "#8 Vent Valves", "cur_min": 151.0, "cur_max": 300.0}, {
+        "item": "22459463.NEW",
+        "desc": "E-3 Brake Application Valves",
+        "cur_min": 311.0,
+        "cur_max": 500.0
+    }, {
+        "item": "22459478.NEW",
+        "desc": "KIT, COVER NUT, TREAD BRAKE UNIT, INCLUD",
+        "cur_min": 2001.0,
+        "cur_max": 2500.0
+    }, {
+        "item": "22459495.NEW",
+        "desc": "P2A Brake Application",
+        "cur_min": 81.0,
+        "cur_max": 120.0
+    }, {
+        "item": "22459702.NEW",
+        "desc": "MC-31 Control Valve",
+        "cur_min": 121.0,
+        "cur_max": 160.0
+    }, {"item": "22459735.NEW", "desc": "Actuators HB", "cur_min": NaN, "cur_max": NaN}, {
+        "item": "22459781.NEW",
+        "desc": "Reservoir Release",
+        "cur_min": 61.0,
+        "cur_max": 100.0
+    }, {"item": "22459825.NEW", "desc": "Variable Load", "cur_min": 251.0, "cur_max": 325.0}, {
+        "item": "22460148.NEW",
+        "desc": "FILTER, OIL, WABTEC COMPRESSOR, ALP45/A/",
+        "cur_min": 25.0,
+        "cur_max": 75.0
+    }, {
+        "item": "22460321.NEW",
+        "desc": "ELEMENT, AIR FILTER, AUX AIR COMP, A46",
+        "cur_min": 91.0,
+        "cur_max": 120.0
+    }, {
+        "item": "22505794.NEW",
+        "desc": "NUT, STOP, 3/4\", TREAD BRAKE, CO2, ML, G",
+        "cur_min": 5001.0,
+        "cur_max": 6000.0
+    }, {
+        "item": "22521056.NEW",
+        "desc": "PAWL, TREAD BRAKE - IMPROVED STYLE GE-6,",
+        "cur_min": 120.0,
+        "cur_max": 200.0
+    }, {
+        "item": "22525751.NEW",
+        "desc": "PIN, FULCRUM, GO-5 1/2, GE-6\u00c2\u00a0\u00c2\u00a0\u00c2\u00a0 COMET TB",
+        "cur_min": 75.0,
+        "cur_max": 100.0
+    }, {
+        "item": "22611300.NEW",
+        "desc": "26-C Service Portion (529)",
+        "cur_min": 201.0,
+        "cur_max": 400.0
+    }, {
+        "item": "22642506.NEW",
+        "desc": "RING, RETAINER, IMPROVED STYLE, TRD BRK",
+        "cur_min": 601.0,
+        "cur_max": 800.0
+    }, {
+        "item": "22811150.NEW",
+        "desc": "SPRING, RETURN, TREAD BRAKE, CYLINDER A=",
+        "cur_min": 121.0,
+        "cur_max": 200.0
+    }, {
+        "item": "22812109.NEW",
+        "desc": "SPRING, RETURN, IMPROVED STYLE, TB GE-6",
+        "cur_min": 51.0,
+        "cur_max": 100.0
+    }, {
+        "item": "22844805.NEW",
+        "desc": "1/2\u00e2\u0080\u009d OC-1-A Filter Valves",
+        "cur_min": 301.0,
+        "cur_max": 600.0
+    }, {
+        "item": "22990003.NEW",
+        "desc": "HOSE ASSY, 1/2\", 26.318\"\u00c2\u00a0 ML 1/2\" HOSE X",
+        "cur_min": 401.0,
+        "cur_max": 800.0
+    }, {
+        "item": "22990018.NEW",
+        "desc": "SENSOR, SPEED, WHEEL, W/CABLE 138\" ML",
+        "cur_min": 25.0,
+        "cur_max": 50.0
+    }, {
+        "item": "22990101.NEW",
+        "desc": "Compensating Valve B12442/001",
+        "cur_min": 151.0,
+        "cur_max": 230.0
+    }, {
+        "item": "24387201.NEW",
+        "desc": "HOLDER, TABLET, CHLORIDE, ADJUSTABLE, SS",
+        "cur_min": 35.0,
+        "cur_max": 70.0
+    }, {
+        "item": "25706033.NEW",
+        "desc": "SENSOR, MAGNETIC PICK-UP, ELECTRICAL EQU",
+        "cur_min": 238.0,
+        "cur_max": 476.0
+    }, {
+        "item": "25794830.NEW",
+        "desc": "DOOR, MOTOR COMP. ASSY, RIGHT, ML",
+        "cur_min": 35.0,
+        "cur_max": 40.0
+    }, {
+        "item": "25794833.NEW",
+        "desc": "DOOR, MOTOR COMP. ASSY, LEFT, ML",
+        "cur_min": 35.0,
+        "cur_max": 40.0
+    }, {
+        "item": "25990239.NEW",
+        "desc": "BATTERY ASSY, W/10X5 CELL TRAYS, ML, 10-",
+        "cur_min": 135.0,
+        "cur_max": 219.0
+    }, {
+        "item": "29045000.NEW",
+        "desc": "WHEEL, B/CLASS, 44\" W/PLATE HOLES, A45 -",
+        "cur_min": 101.0,
+        "cur_max": 200.0
+    }, {
+        "item": "29132262.NEW",
+        "desc": "AXLE, 6\" X 11\", BRAKE SEAT, OS, BRAKE SE",
+        "cur_min": 31.0,
+        "cur_max": 48.0
+    }, {
+        "item": "29340815.NEW",
+        "desc": "WHEEL, BLACK, B32CL-BR AAR APPR, WROUGHT",
+        "cur_min": 1401.0,
+        "cur_max": 2100.0
+    }, {
+        "item": "29990000.NEW",
+        "desc": "WHEEL, WHITE, 36\", ML. SUPPLIER MUST MEE",
+        "cur_min": 1200.0,
+        "cur_max": 1800.0
+    }, {
+        "item": "29990001.NEW",
+        "desc": "AXLE, FORGED CARBON STEEL, 7\" X 12\", ML.",
+        "cur_min": 95.0,
+        "cur_max": 120.0
+    }, {
+        "item": "30280000.NEW",
+        "desc": "DOWEL, WOOD, TAPRD, 1-1/2\"X 3/4\"X 3-3/4\"",
+        "cur_min": 301.0,
+        "cur_max": 400.0
+    }, {
+        "item": "37203403.NEW",
+        "desc": "GREASE, MULTI PURPOSE, LITHIUM BASE,SOAP",
+        "cur_min": 201.0,
+        "cur_max": 600.0
+    }, {
+        "item": "37362525.NEW",
+        "desc": "LUBRICANT, SKF LGLT 2, ML",
+        "cur_min": 16.0,
+        "cur_max": 24.0
+    }, {
+        "item": "37395505.NEW",
+        "desc": "LUBRICANT, SILICONE SPRAY, 11 0Z AEROSOL",
+        "cur_min": 251.0,
+        "cur_max": 600.0
+    }, {
+        "item": "37725809.NEW",
+        "desc": "OIL, HOUSEHOLD, MP, 3OZ CAN, LUBRICATES,",
+        "cur_min": 51.0,
+        "cur_max": 96.0
+    }, {
+        "item": "45293501.NEW",
+        "desc": "GAUGE, ROTOR HOLLOW WEAR, DISCS MADE OUT",
+        "cur_min": 21.0,
+        "cur_max": 30.0
+    }, {
+        "item": "45294145.NEW",
+        "desc": "GAUGE, COUPLER & BUFFER HEIGHTS, LOCO AN",
+        "cur_min": 4.0,
+        "cur_max": 8.0
+    }, {
+        "item": "45724091.NEW",
+        "desc": "TONGS, LOCKING, 16\", STAINLESS, HD FOR S",
+        "cur_min": 13.0,
+        "cur_max": 48.0
+    }, {
+        "item": "47000789.NEW",
+        "desc": "DECAL, DOOR HANDLE LOCATOR HPPL 7 X 4-1/",
+        "cur_min": 50.0,
+        "cur_max": 100.0
+    }, {
+        "item": "47037817.NEW",
+        "desc": "THREADLOCKER, HIGH-STRNTH, #271, 10ML/BT",
+        "cur_min": 25.0,
+        "cur_max": 60.0
+    }, {
+        "item": "47037991.NEW",
+        "desc": "SPRAY, ADHESIVE, REMOVER, 14OZ 12BTL/CS,",
+        "cur_min": 36.0,
+        "cur_max": 96.0
+    }, {
+        "item": "47130906.NEW",
+        "desc": "TABLET, CHLORINE, \"X\" SLUG, MICROPHORE U",
+        "cur_min": 121.0,
+        "cur_max": 200.0
+    }, {
+        "item": "47237019.NEW",
+        "desc": "DECAL, TAPE, REFLECTIVE, RED/CLEAR, ROOF",
+        "cur_min": 11.0,
+        "cur_max": 20.0
+    }, {
+        "item": "47237130.NEW",
+        "desc": "DECAL, EMERGENCY TOOLS, 7\" X 3.5\" ML UV",
+        "cur_min": 41.0,
+        "cur_max": 100.0
+    }, {
+        "item": "47728761.NEW",
+        "desc": "SEALER, EDGE, DECAL SCOTCHCAL BRAND 3M P",
+        "cur_min": 21.0,
+        "cur_max": 48.0
+    }, {
+        "item": "47952411.NEW",
+        "desc": "DECAL, PASSENGER EMERGENCY INTERCOM, LUM",
+        "cur_min": 151.0,
+        "cur_max": 300.0
+    }, {"item": "49373721.NEW", "desc": "HYDROMETER, BATTERY COMPLETE, TYPE V-2-F", "cur_min": 15.0, "cur_max": 25.0}];
+    const mmSelectedThresholdsBalanced = {
+        "Normal Lead Time": {
+            "Stable": {
+                "11990014.NEW": {"sel_min": 22, "sel_max": 23},
+                "12137020.NEW": {"sel_min": 294, "sel_max": 374},
+                "19076553.NEW": {"sel_min": 268, "sel_max": 1428},
+                "20040968.NEW": {"sel_min": 225, "sel_max": 403},
+                "20041164.NEW": {"sel_min": 437, "sel_max": 659},
+                "20160250.NEW": {"sel_min": 21, "sel_max": 26},
+                "20160251.NEW": {"sel_min": 9, "sel_max": 15},
+                "20238759.NEW": {"sel_min": 24, "sel_max": 46},
+                "20460015.NEW": {"sel_min": 88, "sel_max": 368},
+                "20608890.NEW": {"sel_min": 12490, "sel_max": 15865},
+                "20620825.NEW": {"sel_min": 44, "sel_max": 56},
+                "20741305.NEW": {"sel_min": 1029, "sel_max": 1589},
+                "20803113.NEW": {"sel_min": 2749, "sel_max": 3154},
+                "20803130.NEW": {"sel_min": 1321, "sel_max": 2233},
+                "20807202.NEW": {"sel_min": 289, "sel_max": 559},
+                "20827801.NEW": {"sel_min": 21, "sel_max": 31},
+                "20990002.NEW": {"sel_min": 168, "sel_max": 232},
+                "20990017.NEW": {"sel_min": 0, "sel_max": 120},
+                "20990070.NEW": {"sel_min": 37410, "sel_max": 38210},
+                "22000078.NEW": {"sel_min": 110, "sel_max": 153},
+                "22028904.NEW": {"sel_min": 37, "sel_max": 63},
+                "22060911.NEW": {"sel_min": 146, "sel_max": 166},
+                "22061301.NEW": {"sel_min": 53, "sel_max": 133},
+                "22195430.NEW": {"sel_min": 64, "sel_max": 109},
+                "22218209.NEW": {"sel_min": 311, "sel_max": 471},
+                "22251494.NEW": {"sel_min": 70, "sel_max": 85},
+                "22299521.NEW": {"sel_min": 142, "sel_max": 342},
+                "22306300.NEW": {"sel_min": 184, "sel_max": 424},
+                "22418412.NEW": {"sel_min": 120, "sel_max": 200},
+                "22453241.NEW": {"sel_min": 68, "sel_max": 83},
+                "22456613.NEW": {"sel_min": 220, "sel_max": 268},
+                "22456778.NEW": {"sel_min": 113, "sel_max": 158},
+                "22457816.NEW": {"sel_min": 187, "sel_max": 247},
+                "22458010.NEW": {"sel_min": 43, "sel_max": 51},
+                "22458258.NEW": {"sel_min": 163, "sel_max": 205},
+                "22458294.NEW": {"sel_min": 120, "sel_max": 135},
+                "22458448.NEW": {"sel_min": 204, "sel_max": 294},
+                "22458837.NEW": {"sel_min": 16, "sel_max": 22},
+                "22458903.NEW": {"sel_min": 61, "sel_max": 83},
+                "22458994.NEW": {"sel_min": 126, "sel_max": 186},
+                "22459059.NEW": {"sel_min": 167, "sel_max": 207},
+                "22459070.NEW": {"sel_min": 336, "sel_max": 376},
+                "22459339.NEW": {"sel_min": 67, "sel_max": 98},
+                "22459347.NEW": {"sel_min": 218, "sel_max": 298},
+                "22459364.NEW": {"sel_min": 124, "sel_max": 184},
+                "22459463.NEW": {"sel_min": 419, "sel_max": 533},
+                "22459478.NEW": {"sel_min": 1166, "sel_max": 1416},
+                "22459495.NEW": {"sel_min": 91, "sel_max": 106},
+                "22459702.NEW": {"sel_min": 113, "sel_max": 128},
+                "22459735.NEW": {"sel_min": 808, "sel_max": 1024},
+                "22459781.NEW": {"sel_min": 49, "sel_max": 67},
+                "22459825.NEW": {"sel_min": 187, "sel_max": 217},
+                "22460148.NEW": {"sel_min": 52, "sel_max": 74},
+                "22460321.NEW": {"sel_min": 90, "sel_max": 100},
+                "22505794.NEW": {"sel_min": 2000, "sel_max": 2400},
+                "22521056.NEW": {"sel_min": 58, "sel_max": 106},
+                "22525751.NEW": {"sel_min": 10, "sel_max": 20},
+                "22611300.NEW": {"sel_min": 160, "sel_max": 240},
+                "22642506.NEW": {"sel_min": 337, "sel_max": 443},
+                "22811150.NEW": {"sel_min": 58, "sel_max": 106},
+                "22812109.NEW": {"sel_min": 4, "sel_max": 24},
+                "22844805.NEW": {"sel_min": 689, "sel_max": 854},
+                "22990003.NEW": {"sel_min": 312, "sel_max": 472},
+                "22990018.NEW": {"sel_min": 0, "sel_max": 13},
+                "22990101.NEW": {"sel_min": 139, "sel_max": 187},
+                "24387201.NEW": {"sel_min": 20, "sel_max": 42},
+                "25706033.NEW": {"sel_min": 128, "sel_max": 223},
+                "25794830.NEW": {"sel_min": 72, "sel_max": 80},
+                "25794833.NEW": {"sel_min": 31, "sel_max": 39},
+                "25990239.NEW": {"sel_min": 171, "sel_max": 221},
+                "29045000.NEW": {"sel_min": 6, "sel_max": 46},
+                "29132262.NEW": {"sel_min": 86, "sel_max": 92},
+                "29340815.NEW": {"sel_min": 420, "sel_max": 700},
+                "29990000.NEW": {"sel_min": 194, "sel_max": 434},
+                "29990001.NEW": {"sel_min": 120, "sel_max": 147},
+                "30280000.NEW": {"sel_min": 177, "sel_max": 222},
+                "37203403.NEW": {"sel_min": 25, "sel_max": 185},
+                "37362525.NEW": {"sel_min": 16, "sel_max": 20},
+                "37395505.NEW": {"sel_min": 46, "sel_max": 186},
+                "37725809.NEW": {"sel_min": 6, "sel_max": 24},
+                "45293501.NEW": {"sel_min": 16, "sel_max": 17},
+                "45294145.NEW": {"sel_min": 4, "sel_max": 8},
+                "45724091.NEW": {"sel_min": 12, "sel_max": 25},
+                "47000789.NEW": {"sel_min": 11, "sel_max": 31},
+                "47037817.NEW": {"sel_min": 35, "sel_max": 48},
+                "47037991.NEW": {"sel_min": 25, "sel_max": 49},
+                "47130906.NEW": {"sel_min": 67, "sel_max": 103},
+                "47237019.NEW": {"sel_min": 6, "sel_max": 9},
+                "47237130.NEW": {"sel_min": 14, "sel_max": 38},
+                "47728761.NEW": {"sel_min": 26, "sel_max": 38},
+                "47952411.NEW": {"sel_min": 12, "sel_max": 72},
+                "49373721.NEW": {"sel_min": 10, "sel_max": 11}
+            }, "Moderate": {
+                "11990014.NEW": {"sel_min": 22, "sel_max": 23},
+                "12137020.NEW": {"sel_min": 294, "sel_max": 374},
+                "19076553.NEW": {"sel_min": 268, "sel_max": 1428},
+                "20040968.NEW": {"sel_min": 225, "sel_max": 403},
+                "20041164.NEW": {"sel_min": 437, "sel_max": 659},
+                "20160250.NEW": {"sel_min": 21, "sel_max": 26},
+                "20160251.NEW": {"sel_min": 9, "sel_max": 15},
+                "20238759.NEW": {"sel_min": 24, "sel_max": 46},
+                "20460015.NEW": {"sel_min": 88, "sel_max": 368},
+                "20608890.NEW": {"sel_min": 12490, "sel_max": 15865},
+                "20620825.NEW": {"sel_min": 44, "sel_max": 56},
+                "20741305.NEW": {"sel_min": 1029, "sel_max": 1589},
+                "20803113.NEW": {"sel_min": 2749, "sel_max": 3154},
+                "20803130.NEW": {"sel_min": 1321, "sel_max": 2233},
+                "20807202.NEW": {"sel_min": 289, "sel_max": 559},
+                "20827801.NEW": {"sel_min": 21, "sel_max": 31},
+                "20990002.NEW": {"sel_min": 168, "sel_max": 232},
+                "20990017.NEW": {"sel_min": 0, "sel_max": 120},
+                "20990070.NEW": {"sel_min": 37410, "sel_max": 38210},
+                "22000078.NEW": {"sel_min": 110, "sel_max": 153},
+                "22028904.NEW": {"sel_min": 37, "sel_max": 63},
+                "22060911.NEW": {"sel_min": 146, "sel_max": 166},
+                "22061301.NEW": {"sel_min": 53, "sel_max": 133},
+                "22195430.NEW": {"sel_min": 64, "sel_max": 109},
+                "22218209.NEW": {"sel_min": 311, "sel_max": 471},
+                "22251494.NEW": {"sel_min": 70, "sel_max": 85},
+                "22299521.NEW": {"sel_min": 142, "sel_max": 342},
+                "22306300.NEW": {"sel_min": 184, "sel_max": 424},
+                "22418412.NEW": {"sel_min": 120, "sel_max": 200},
+                "22453241.NEW": {"sel_min": 68, "sel_max": 83},
+                "22456613.NEW": {"sel_min": 220, "sel_max": 268},
+                "22456778.NEW": {"sel_min": 113, "sel_max": 158},
+                "22457816.NEW": {"sel_min": 187, "sel_max": 247},
+                "22458010.NEW": {"sel_min": 43, "sel_max": 51},
+                "22458258.NEW": {"sel_min": 163, "sel_max": 205},
+                "22458294.NEW": {"sel_min": 120, "sel_max": 135},
+                "22458448.NEW": {"sel_min": 204, "sel_max": 294},
+                "22458837.NEW": {"sel_min": 16, "sel_max": 22},
+                "22458903.NEW": {"sel_min": 61, "sel_max": 83},
+                "22458994.NEW": {"sel_min": 126, "sel_max": 186},
+                "22459059.NEW": {"sel_min": 167, "sel_max": 207},
+                "22459070.NEW": {"sel_min": 336, "sel_max": 376},
+                "22459339.NEW": {"sel_min": 67, "sel_max": 98},
+                "22459347.NEW": {"sel_min": 218, "sel_max": 298},
+                "22459364.NEW": {"sel_min": 124, "sel_max": 184},
+                "22459463.NEW": {"sel_min": 419, "sel_max": 533},
+                "22459478.NEW": {"sel_min": 1166, "sel_max": 1416},
+                "22459495.NEW": {"sel_min": 91, "sel_max": 106},
+                "22459702.NEW": {"sel_min": 113, "sel_max": 128},
+                "22459735.NEW": {"sel_min": 808, "sel_max": 1024},
+                "22459781.NEW": {"sel_min": 49, "sel_max": 67},
+                "22459825.NEW": {"sel_min": 187, "sel_max": 217},
+                "22460148.NEW": {"sel_min": 52, "sel_max": 74},
+                "22460321.NEW": {"sel_min": 90, "sel_max": 100},
+                "22505794.NEW": {"sel_min": 2000, "sel_max": 2400},
+                "22521056.NEW": {"sel_min": 58, "sel_max": 106},
+                "22525751.NEW": {"sel_min": 10, "sel_max": 20},
+                "22611300.NEW": {"sel_min": 160, "sel_max": 240},
+                "22642506.NEW": {"sel_min": 337, "sel_max": 443},
+                "22811150.NEW": {"sel_min": 58, "sel_max": 106},
+                "22812109.NEW": {"sel_min": 4, "sel_max": 24},
+                "22844805.NEW": {"sel_min": 689, "sel_max": 854},
+                "22990003.NEW": {"sel_min": 312, "sel_max": 472},
+                "22990018.NEW": {"sel_min": 0, "sel_max": 13},
+                "22990101.NEW": {"sel_min": 139, "sel_max": 187},
+                "24387201.NEW": {"sel_min": 20, "sel_max": 42},
+                "25706033.NEW": {"sel_min": 128, "sel_max": 223},
+                "25794830.NEW": {"sel_min": 72, "sel_max": 80},
+                "25794833.NEW": {"sel_min": 31, "sel_max": 39},
+                "25990239.NEW": {"sel_min": 171, "sel_max": 221},
+                "29045000.NEW": {"sel_min": 6, "sel_max": 46},
+                "29132262.NEW": {"sel_min": 86, "sel_max": 92},
+                "29340815.NEW": {"sel_min": 420, "sel_max": 700},
+                "29990000.NEW": {"sel_min": 194, "sel_max": 434},
+                "29990001.NEW": {"sel_min": 120, "sel_max": 147},
+                "30280000.NEW": {"sel_min": 177, "sel_max": 222},
+                "37203403.NEW": {"sel_min": 25, "sel_max": 185},
+                "37362525.NEW": {"sel_min": 16, "sel_max": 20},
+                "37395505.NEW": {"sel_min": 46, "sel_max": 186},
+                "37725809.NEW": {"sel_min": 6, "sel_max": 24},
+                "45293501.NEW": {"sel_min": 16, "sel_max": 17},
+                "45294145.NEW": {"sel_min": 4, "sel_max": 8},
+                "45724091.NEW": {"sel_min": 12, "sel_max": 25},
+                "47000789.NEW": {"sel_min": 11, "sel_max": 31},
+                "47037817.NEW": {"sel_min": 35, "sel_max": 48},
+                "47037991.NEW": {"sel_min": 25, "sel_max": 49},
+                "47130906.NEW": {"sel_min": 67, "sel_max": 103},
+                "47237019.NEW": {"sel_min": 6, "sel_max": 9},
+                "47237130.NEW": {"sel_min": 14, "sel_max": 38},
+                "47728761.NEW": {"sel_min": 26, "sel_max": 38},
+                "47952411.NEW": {"sel_min": 12, "sel_max": 72},
+                "49373721.NEW": {"sel_min": 10, "sel_max": 11}
+            }, "Spiky": {
+                "11990014.NEW": {"sel_min": 22, "sel_max": 23},
+                "12137020.NEW": {"sel_min": 294, "sel_max": 374},
+                "19076553.NEW": {"sel_min": 268, "sel_max": 1428},
+                "20040968.NEW": {"sel_min": 225, "sel_max": 403},
+                "20041164.NEW": {"sel_min": 437, "sel_max": 659},
+                "20160250.NEW": {"sel_min": 21, "sel_max": 26},
+                "20160251.NEW": {"sel_min": 9, "sel_max": 15},
+                "20238759.NEW": {"sel_min": 24, "sel_max": 46},
+                "20460015.NEW": {"sel_min": 88, "sel_max": 368},
+                "20608890.NEW": {"sel_min": 12490, "sel_max": 15865},
+                "20620825.NEW": {"sel_min": 44, "sel_max": 56},
+                "20741305.NEW": {"sel_min": 1029, "sel_max": 1589},
+                "20803113.NEW": {"sel_min": 2749, "sel_max": 3154},
+                "20803130.NEW": {"sel_min": 1321, "sel_max": 2233},
+                "20807202.NEW": {"sel_min": 289, "sel_max": 559},
+                "20827801.NEW": {"sel_min": 21, "sel_max": 31},
+                "20990002.NEW": {"sel_min": 168, "sel_max": 232},
+                "20990017.NEW": {"sel_min": 0, "sel_max": 120},
+                "20990070.NEW": {"sel_min": 37410, "sel_max": 38210},
+                "22000078.NEW": {"sel_min": 110, "sel_max": 153},
+                "22028904.NEW": {"sel_min": 37, "sel_max": 63},
+                "22060911.NEW": {"sel_min": 146, "sel_max": 166},
+                "22061301.NEW": {"sel_min": 53, "sel_max": 133},
+                "22195430.NEW": {"sel_min": 64, "sel_max": 109},
+                "22218209.NEW": {"sel_min": 311, "sel_max": 471},
+                "22251494.NEW": {"sel_min": 70, "sel_max": 85},
+                "22299521.NEW": {"sel_min": 142, "sel_max": 342},
+                "22306300.NEW": {"sel_min": 184, "sel_max": 424},
+                "22418412.NEW": {"sel_min": 120, "sel_max": 200},
+                "22453241.NEW": {"sel_min": 68, "sel_max": 83},
+                "22456613.NEW": {"sel_min": 220, "sel_max": 268},
+                "22456778.NEW": {"sel_min": 113, "sel_max": 158},
+                "22457816.NEW": {"sel_min": 187, "sel_max": 247},
+                "22458010.NEW": {"sel_min": 43, "sel_max": 51},
+                "22458258.NEW": {"sel_min": 163, "sel_max": 205},
+                "22458294.NEW": {"sel_min": 120, "sel_max": 135},
+                "22458448.NEW": {"sel_min": 204, "sel_max": 294},
+                "22458837.NEW": {"sel_min": 16, "sel_max": 22},
+                "22458903.NEW": {"sel_min": 61, "sel_max": 83},
+                "22458994.NEW": {"sel_min": 126, "sel_max": 186},
+                "22459059.NEW": {"sel_min": 167, "sel_max": 207},
+                "22459070.NEW": {"sel_min": 336, "sel_max": 376},
+                "22459339.NEW": {"sel_min": 67, "sel_max": 98},
+                "22459347.NEW": {"sel_min": 218, "sel_max": 298},
+                "22459364.NEW": {"sel_min": 124, "sel_max": 184},
+                "22459463.NEW": {"sel_min": 419, "sel_max": 533},
+                "22459478.NEW": {"sel_min": 1166, "sel_max": 1416},
+                "22459495.NEW": {"sel_min": 91, "sel_max": 106},
+                "22459702.NEW": {"sel_min": 113, "sel_max": 128},
+                "22459735.NEW": {"sel_min": 808, "sel_max": 1024},
+                "22459781.NEW": {"sel_min": 49, "sel_max": 67},
+                "22459825.NEW": {"sel_min": 187, "sel_max": 217},
+                "22460148.NEW": {"sel_min": 52, "sel_max": 74},
+                "22460321.NEW": {"sel_min": 90, "sel_max": 100},
+                "22505794.NEW": {"sel_min": 2000, "sel_max": 2400},
+                "22521056.NEW": {"sel_min": 58, "sel_max": 106},
+                "22525751.NEW": {"sel_min": 10, "sel_max": 20},
+                "22611300.NEW": {"sel_min": 160, "sel_max": 240},
+                "22642506.NEW": {"sel_min": 337, "sel_max": 443},
+                "22811150.NEW": {"sel_min": 58, "sel_max": 106},
+                "22812109.NEW": {"sel_min": 4, "sel_max": 24},
+                "22844805.NEW": {"sel_min": 689, "sel_max": 854},
+                "22990003.NEW": {"sel_min": 312, "sel_max": 472},
+                "22990018.NEW": {"sel_min": 0, "sel_max": 13},
+                "22990101.NEW": {"sel_min": 139, "sel_max": 187},
+                "24387201.NEW": {"sel_min": 20, "sel_max": 42},
+                "25706033.NEW": {"sel_min": 128, "sel_max": 223},
+                "25794830.NEW": {"sel_min": 72, "sel_max": 80},
+                "25794833.NEW": {"sel_min": 31, "sel_max": 39},
+                "25990239.NEW": {"sel_min": 171, "sel_max": 221},
+                "29045000.NEW": {"sel_min": 6, "sel_max": 46},
+                "29132262.NEW": {"sel_min": 86, "sel_max": 92},
+                "29340815.NEW": {"sel_min": 420, "sel_max": 700},
+                "29990000.NEW": {"sel_min": 194, "sel_max": 434},
+                "29990001.NEW": {"sel_min": 120, "sel_max": 147},
+                "30280000.NEW": {"sel_min": 177, "sel_max": 222},
+                "37203403.NEW": {"sel_min": 25, "sel_max": 185},
+                "37362525.NEW": {"sel_min": 16, "sel_max": 20},
+                "37395505.NEW": {"sel_min": 46, "sel_max": 186},
+                "37725809.NEW": {"sel_min": 6, "sel_max": 24},
+                "45293501.NEW": {"sel_min": 16, "sel_max": 17},
+                "45294145.NEW": {"sel_min": 4, "sel_max": 8},
+                "45724091.NEW": {"sel_min": 12, "sel_max": 25},
+                "47000789.NEW": {"sel_min": 11, "sel_max": 31},
+                "47037817.NEW": {"sel_min": 35, "sel_max": 48},
+                "47037991.NEW": {"sel_min": 25, "sel_max": 49},
+                "47130906.NEW": {"sel_min": 67, "sel_max": 103},
+                "47237019.NEW": {"sel_min": 6, "sel_max": 9},
+                "47237130.NEW": {"sel_min": 14, "sel_max": 38},
+                "47728761.NEW": {"sel_min": 26, "sel_max": 38},
+                "47952411.NEW": {"sel_min": 12, "sel_max": 72},
+                "49373721.NEW": {"sel_min": 10, "sel_max": 11}
+            }
+        }, "15% Delay": {
+            "Stable": {
+                "11990014.NEW": {"sel_min": 22, "sel_max": 23},
+                "12137020.NEW": {"sel_min": 294, "sel_max": 374},
+                "19076553.NEW": {"sel_min": 268, "sel_max": 1428},
+                "20040968.NEW": {"sel_min": 225, "sel_max": 403},
+                "20041164.NEW": {"sel_min": 437, "sel_max": 659},
+                "20160250.NEW": {"sel_min": 21, "sel_max": 26},
+                "20160251.NEW": {"sel_min": 9, "sel_max": 15},
+                "20238759.NEW": {"sel_min": 24, "sel_max": 46},
+                "20460015.NEW": {"sel_min": 88, "sel_max": 368},
+                "20608890.NEW": {"sel_min": 12490, "sel_max": 15865},
+                "20620825.NEW": {"sel_min": 44, "sel_max": 56},
+                "20741305.NEW": {"sel_min": 1029, "sel_max": 1589},
+                "20803113.NEW": {"sel_min": 2749, "sel_max": 3154},
+                "20803130.NEW": {"sel_min": 1321, "sel_max": 2233},
+                "20807202.NEW": {"sel_min": 289, "sel_max": 559},
+                "20827801.NEW": {"sel_min": 21, "sel_max": 31},
+                "20990002.NEW": {"sel_min": 168, "sel_max": 232},
+                "20990017.NEW": {"sel_min": 0, "sel_max": 120},
+                "20990070.NEW": {"sel_min": 37410, "sel_max": 38210},
+                "22000078.NEW": {"sel_min": 110, "sel_max": 153},
+                "22028904.NEW": {"sel_min": 37, "sel_max": 63},
+                "22060911.NEW": {"sel_min": 146, "sel_max": 166},
+                "22061301.NEW": {"sel_min": 53, "sel_max": 133},
+                "22195430.NEW": {"sel_min": 64, "sel_max": 109},
+                "22218209.NEW": {"sel_min": 311, "sel_max": 471},
+                "22251494.NEW": {"sel_min": 70, "sel_max": 85},
+                "22299521.NEW": {"sel_min": 142, "sel_max": 342},
+                "22306300.NEW": {"sel_min": 184, "sel_max": 424},
+                "22418412.NEW": {"sel_min": 120, "sel_max": 200},
+                "22453241.NEW": {"sel_min": 68, "sel_max": 83},
+                "22456613.NEW": {"sel_min": 220, "sel_max": 268},
+                "22456778.NEW": {"sel_min": 113, "sel_max": 158},
+                "22457816.NEW": {"sel_min": 187, "sel_max": 247},
+                "22458010.NEW": {"sel_min": 43, "sel_max": 51},
+                "22458258.NEW": {"sel_min": 163, "sel_max": 205},
+                "22458294.NEW": {"sel_min": 120, "sel_max": 135},
+                "22458448.NEW": {"sel_min": 204, "sel_max": 294},
+                "22458837.NEW": {"sel_min": 16, "sel_max": 22},
+                "22458903.NEW": {"sel_min": 61, "sel_max": 83},
+                "22458994.NEW": {"sel_min": 126, "sel_max": 186},
+                "22459059.NEW": {"sel_min": 167, "sel_max": 207},
+                "22459070.NEW": {"sel_min": 336, "sel_max": 376},
+                "22459339.NEW": {"sel_min": 67, "sel_max": 98},
+                "22459347.NEW": {"sel_min": 218, "sel_max": 298},
+                "22459364.NEW": {"sel_min": 124, "sel_max": 184},
+                "22459463.NEW": {"sel_min": 419, "sel_max": 533},
+                "22459478.NEW": {"sel_min": 1166, "sel_max": 1416},
+                "22459495.NEW": {"sel_min": 91, "sel_max": 106},
+                "22459702.NEW": {"sel_min": 113, "sel_max": 128},
+                "22459735.NEW": {"sel_min": 808, "sel_max": 1024},
+                "22459781.NEW": {"sel_min": 49, "sel_max": 67},
+                "22459825.NEW": {"sel_min": 187, "sel_max": 217},
+                "22460148.NEW": {"sel_min": 52, "sel_max": 74},
+                "22460321.NEW": {"sel_min": 90, "sel_max": 100},
+                "22505794.NEW": {"sel_min": 2000, "sel_max": 2400},
+                "22521056.NEW": {"sel_min": 58, "sel_max": 106},
+                "22525751.NEW": {"sel_min": 10, "sel_max": 20},
+                "22611300.NEW": {"sel_min": 160, "sel_max": 240},
+                "22642506.NEW": {"sel_min": 337, "sel_max": 443},
+                "22811150.NEW": {"sel_min": 58, "sel_max": 106},
+                "22812109.NEW": {"sel_min": 4, "sel_max": 24},
+                "22844805.NEW": {"sel_min": 689, "sel_max": 854},
+                "22990003.NEW": {"sel_min": 312, "sel_max": 472},
+                "22990018.NEW": {"sel_min": 0, "sel_max": 13},
+                "22990101.NEW": {"sel_min": 139, "sel_max": 187},
+                "24387201.NEW": {"sel_min": 20, "sel_max": 42},
+                "25706033.NEW": {"sel_min": 128, "sel_max": 223},
+                "25794830.NEW": {"sel_min": 72, "sel_max": 80},
+                "25794833.NEW": {"sel_min": 31, "sel_max": 39},
+                "25990239.NEW": {"sel_min": 171, "sel_max": 221},
+                "29045000.NEW": {"sel_min": 6, "sel_max": 46},
+                "29132262.NEW": {"sel_min": 86, "sel_max": 92},
+                "29340815.NEW": {"sel_min": 420, "sel_max": 700},
+                "29990000.NEW": {"sel_min": 194, "sel_max": 434},
+                "29990001.NEW": {"sel_min": 120, "sel_max": 147},
+                "30280000.NEW": {"sel_min": 177, "sel_max": 222},
+                "37203403.NEW": {"sel_min": 25, "sel_max": 185},
+                "37362525.NEW": {"sel_min": 16, "sel_max": 20},
+                "37395505.NEW": {"sel_min": 46, "sel_max": 186},
+                "37725809.NEW": {"sel_min": 6, "sel_max": 24},
+                "45293501.NEW": {"sel_min": 16, "sel_max": 17},
+                "45294145.NEW": {"sel_min": 4, "sel_max": 8},
+                "45724091.NEW": {"sel_min": 12, "sel_max": 25},
+                "47000789.NEW": {"sel_min": 11, "sel_max": 31},
+                "47037817.NEW": {"sel_min": 35, "sel_max": 48},
+                "47037991.NEW": {"sel_min": 25, "sel_max": 49},
+                "47130906.NEW": {"sel_min": 67, "sel_max": 103},
+                "47237019.NEW": {"sel_min": 6, "sel_max": 9},
+                "47237130.NEW": {"sel_min": 14, "sel_max": 38},
+                "47728761.NEW": {"sel_min": 26, "sel_max": 38},
+                "47952411.NEW": {"sel_min": 12, "sel_max": 72},
+                "49373721.NEW": {"sel_min": 10, "sel_max": 11}
+            }, "Moderate": {
+                "11990014.NEW": {"sel_min": 22, "sel_max": 23},
+                "12137020.NEW": {"sel_min": 294, "sel_max": 374},
+                "19076553.NEW": {"sel_min": 268, "sel_max": 1428},
+                "20040968.NEW": {"sel_min": 225, "sel_max": 403},
+                "20041164.NEW": {"sel_min": 437, "sel_max": 659},
+                "20160250.NEW": {"sel_min": 21, "sel_max": 26},
+                "20160251.NEW": {"sel_min": 9, "sel_max": 15},
+                "20238759.NEW": {"sel_min": 24, "sel_max": 46},
+                "20460015.NEW": {"sel_min": 88, "sel_max": 368},
+                "20608890.NEW": {"sel_min": 12490, "sel_max": 15865},
+                "20620825.NEW": {"sel_min": 44, "sel_max": 56},
+                "20741305.NEW": {"sel_min": 1029, "sel_max": 1589},
+                "20803113.NEW": {"sel_min": 2749, "sel_max": 3154},
+                "20803130.NEW": {"sel_min": 1321, "sel_max": 2233},
+                "20807202.NEW": {"sel_min": 289, "sel_max": 559},
+                "20827801.NEW": {"sel_min": 21, "sel_max": 31},
+                "20990002.NEW": {"sel_min": 168, "sel_max": 232},
+                "20990017.NEW": {"sel_min": 0, "sel_max": 120},
+                "20990070.NEW": {"sel_min": 37410, "sel_max": 38210},
+                "22000078.NEW": {"sel_min": 110, "sel_max": 153},
+                "22028904.NEW": {"sel_min": 37, "sel_max": 63},
+                "22060911.NEW": {"sel_min": 146, "sel_max": 166},
+                "22061301.NEW": {"sel_min": 53, "sel_max": 133},
+                "22195430.NEW": {"sel_min": 64, "sel_max": 109},
+                "22218209.NEW": {"sel_min": 311, "sel_max": 471},
+                "22251494.NEW": {"sel_min": 70, "sel_max": 85},
+                "22299521.NEW": {"sel_min": 142, "sel_max": 342},
+                "22306300.NEW": {"sel_min": 184, "sel_max": 424},
+                "22418412.NEW": {"sel_min": 120, "sel_max": 200},
+                "22453241.NEW": {"sel_min": 68, "sel_max": 83},
+                "22456613.NEW": {"sel_min": 220, "sel_max": 268},
+                "22456778.NEW": {"sel_min": 113, "sel_max": 158},
+                "22457816.NEW": {"sel_min": 187, "sel_max": 247},
+                "22458010.NEW": {"sel_min": 43, "sel_max": 51},
+                "22458258.NEW": {"sel_min": 163, "sel_max": 205},
+                "22458294.NEW": {"sel_min": 120, "sel_max": 135},
+                "22458448.NEW": {"sel_min": 204, "sel_max": 294},
+                "22458837.NEW": {"sel_min": 16, "sel_max": 22},
+                "22458903.NEW": {"sel_min": 61, "sel_max": 83},
+                "22458994.NEW": {"sel_min": 126, "sel_max": 186},
+                "22459059.NEW": {"sel_min": 167, "sel_max": 207},
+                "22459070.NEW": {"sel_min": 336, "sel_max": 376},
+                "22459339.NEW": {"sel_min": 67, "sel_max": 98},
+                "22459347.NEW": {"sel_min": 218, "sel_max": 298},
+                "22459364.NEW": {"sel_min": 124, "sel_max": 184},
+                "22459463.NEW": {"sel_min": 419, "sel_max": 533},
+                "22459478.NEW": {"sel_min": 1166, "sel_max": 1416},
+                "22459495.NEW": {"sel_min": 91, "sel_max": 106},
+                "22459702.NEW": {"sel_min": 113, "sel_max": 128},
+                "22459735.NEW": {"sel_min": 808, "sel_max": 1024},
+                "22459781.NEW": {"sel_min": 49, "sel_max": 67},
+                "22459825.NEW": {"sel_min": 187, "sel_max": 217},
+                "22460148.NEW": {"sel_min": 52, "sel_max": 74},
+                "22460321.NEW": {"sel_min": 90, "sel_max": 100},
+                "22505794.NEW": {"sel_min": 2000, "sel_max": 2400},
+                "22521056.NEW": {"sel_min": 58, "sel_max": 106},
+                "22525751.NEW": {"sel_min": 10, "sel_max": 20},
+                "22611300.NEW": {"sel_min": 160, "sel_max": 240},
+                "22642506.NEW": {"sel_min": 337, "sel_max": 443},
+                "22811150.NEW": {"sel_min": 58, "sel_max": 106},
+                "22812109.NEW": {"sel_min": 4, "sel_max": 24},
+                "22844805.NEW": {"sel_min": 689, "sel_max": 854},
+                "22990003.NEW": {"sel_min": 312, "sel_max": 472},
+                "22990018.NEW": {"sel_min": 0, "sel_max": 13},
+                "22990101.NEW": {"sel_min": 139, "sel_max": 187},
+                "24387201.NEW": {"sel_min": 20, "sel_max": 42},
+                "25706033.NEW": {"sel_min": 128, "sel_max": 223},
+                "25794830.NEW": {"sel_min": 72, "sel_max": 80},
+                "25794833.NEW": {"sel_min": 31, "sel_max": 39},
+                "25990239.NEW": {"sel_min": 171, "sel_max": 221},
+                "29045000.NEW": {"sel_min": 6, "sel_max": 46},
+                "29132262.NEW": {"sel_min": 86, "sel_max": 92},
+                "29340815.NEW": {"sel_min": 420, "sel_max": 700},
+                "29990000.NEW": {"sel_min": 194, "sel_max": 434},
+                "29990001.NEW": {"sel_min": 120, "sel_max": 147},
+                "30280000.NEW": {"sel_min": 177, "sel_max": 222},
+                "37203403.NEW": {"sel_min": 25, "sel_max": 185},
+                "37362525.NEW": {"sel_min": 16, "sel_max": 20},
+                "37395505.NEW": {"sel_min": 46, "sel_max": 186},
+                "37725809.NEW": {"sel_min": 6, "sel_max": 24},
+                "45293501.NEW": {"sel_min": 16, "sel_max": 17},
+                "45294145.NEW": {"sel_min": 4, "sel_max": 8},
+                "45724091.NEW": {"sel_min": 12, "sel_max": 25},
+                "47000789.NEW": {"sel_min": 11, "sel_max": 31},
+                "47037817.NEW": {"sel_min": 35, "sel_max": 48},
+                "47037991.NEW": {"sel_min": 25, "sel_max": 49},
+                "47130906.NEW": {"sel_min": 67, "sel_max": 103},
+                "47237019.NEW": {"sel_min": 6, "sel_max": 9},
+                "47237130.NEW": {"sel_min": 14, "sel_max": 38},
+                "47728761.NEW": {"sel_min": 26, "sel_max": 38},
+                "47952411.NEW": {"sel_min": 12, "sel_max": 72},
+                "49373721.NEW": {"sel_min": 10, "sel_max": 11}
+            }, "Spiky": {
+                "11990014.NEW": {"sel_min": 22, "sel_max": 23},
+                "12137020.NEW": {"sel_min": 294, "sel_max": 374},
+                "19076553.NEW": {"sel_min": 268, "sel_max": 1428},
+                "20040968.NEW": {"sel_min": 225, "sel_max": 403},
+                "20041164.NEW": {"sel_min": 437, "sel_max": 659},
+                "20160250.NEW": {"sel_min": 21, "sel_max": 26},
+                "20160251.NEW": {"sel_min": 9, "sel_max": 15},
+                "20238759.NEW": {"sel_min": 24, "sel_max": 46},
+                "20460015.NEW": {"sel_min": 88, "sel_max": 368},
+                "20608890.NEW": {"sel_min": 12490, "sel_max": 15865},
+                "20620825.NEW": {"sel_min": 44, "sel_max": 56},
+                "20741305.NEW": {"sel_min": 1029, "sel_max": 1589},
+                "20803113.NEW": {"sel_min": 2749, "sel_max": 3154},
+                "20803130.NEW": {"sel_min": 1321, "sel_max": 2233},
+                "20807202.NEW": {"sel_min": 289, "sel_max": 559},
+                "20827801.NEW": {"sel_min": 21, "sel_max": 31},
+                "20990002.NEW": {"sel_min": 168, "sel_max": 232},
+                "20990017.NEW": {"sel_min": 0, "sel_max": 120},
+                "20990070.NEW": {"sel_min": 37410, "sel_max": 38210},
+                "22000078.NEW": {"sel_min": 110, "sel_max": 153},
+                "22028904.NEW": {"sel_min": 37, "sel_max": 63},
+                "22060911.NEW": {"sel_min": 146, "sel_max": 166},
+                "22061301.NEW": {"sel_min": 53, "sel_max": 133},
+                "22195430.NEW": {"sel_min": 64, "sel_max": 109},
+                "22218209.NEW": {"sel_min": 311, "sel_max": 471},
+                "22251494.NEW": {"sel_min": 70, "sel_max": 85},
+                "22299521.NEW": {"sel_min": 142, "sel_max": 342},
+                "22306300.NEW": {"sel_min": 184, "sel_max": 424},
+                "22418412.NEW": {"sel_min": 120, "sel_max": 200},
+                "22453241.NEW": {"sel_min": 68, "sel_max": 83},
+                "22456613.NEW": {"sel_min": 220, "sel_max": 268},
+                "22456778.NEW": {"sel_min": 113, "sel_max": 158},
+                "22457816.NEW": {"sel_min": 187, "sel_max": 247},
+                "22458010.NEW": {"sel_min": 43, "sel_max": 51},
+                "22458258.NEW": {"sel_min": 163, "sel_max": 205},
+                "22458294.NEW": {"sel_min": 120, "sel_max": 135},
+                "22458448.NEW": {"sel_min": 204, "sel_max": 294},
+                "22458837.NEW": {"sel_min": 16, "sel_max": 22},
+                "22458903.NEW": {"sel_min": 61, "sel_max": 83},
+                "22458994.NEW": {"sel_min": 126, "sel_max": 186},
+                "22459059.NEW": {"sel_min": 167, "sel_max": 207},
+                "22459070.NEW": {"sel_min": 336, "sel_max": 376},
+                "22459339.NEW": {"sel_min": 67, "sel_max": 98},
+                "22459347.NEW": {"sel_min": 218, "sel_max": 298},
+                "22459364.NEW": {"sel_min": 124, "sel_max": 184},
+                "22459463.NEW": {"sel_min": 419, "sel_max": 533},
+                "22459478.NEW": {"sel_min": 1166, "sel_max": 1416},
+                "22459495.NEW": {"sel_min": 91, "sel_max": 106},
+                "22459702.NEW": {"sel_min": 113, "sel_max": 128},
+                "22459735.NEW": {"sel_min": 808, "sel_max": 1024},
+                "22459781.NEW": {"sel_min": 49, "sel_max": 67},
+                "22459825.NEW": {"sel_min": 187, "sel_max": 217},
+                "22460148.NEW": {"sel_min": 52, "sel_max": 74},
+                "22460321.NEW": {"sel_min": 90, "sel_max": 100},
+                "22505794.NEW": {"sel_min": 2000, "sel_max": 2400},
+                "22521056.NEW": {"sel_min": 58, "sel_max": 106},
+                "22525751.NEW": {"sel_min": 10, "sel_max": 20},
+                "22611300.NEW": {"sel_min": 160, "sel_max": 240},
+                "22642506.NEW": {"sel_min": 337, "sel_max": 443},
+                "22811150.NEW": {"sel_min": 58, "sel_max": 106},
+                "22812109.NEW": {"sel_min": 4, "sel_max": 24},
+                "22844805.NEW": {"sel_min": 689, "sel_max": 854},
+                "22990003.NEW": {"sel_min": 312, "sel_max": 472},
+                "22990018.NEW": {"sel_min": 0, "sel_max": 13},
+                "22990101.NEW": {"sel_min": 139, "sel_max": 187},
+                "24387201.NEW": {"sel_min": 20, "sel_max": 42},
+                "25706033.NEW": {"sel_min": 128, "sel_max": 223},
+                "25794830.NEW": {"sel_min": 72, "sel_max": 80},
+                "25794833.NEW": {"sel_min": 31, "sel_max": 39},
+                "25990239.NEW": {"sel_min": 171, "sel_max": 221},
+                "29045000.NEW": {"sel_min": 6, "sel_max": 46},
+                "29132262.NEW": {"sel_min": 86, "sel_max": 92},
+                "29340815.NEW": {"sel_min": 420, "sel_max": 700},
+                "29990000.NEW": {"sel_min": 194, "sel_max": 434},
+                "29990001.NEW": {"sel_min": 120, "sel_max": 147},
+                "30280000.NEW": {"sel_min": 177, "sel_max": 222},
+                "37203403.NEW": {"sel_min": 25, "sel_max": 185},
+                "37362525.NEW": {"sel_min": 16, "sel_max": 20},
+                "37395505.NEW": {"sel_min": 46, "sel_max": 186},
+                "37725809.NEW": {"sel_min": 6, "sel_max": 24},
+                "45293501.NEW": {"sel_min": 16, "sel_max": 17},
+                "45294145.NEW": {"sel_min": 4, "sel_max": 8},
+                "45724091.NEW": {"sel_min": 12, "sel_max": 25},
+                "47000789.NEW": {"sel_min": 11, "sel_max": 31},
+                "47037817.NEW": {"sel_min": 35, "sel_max": 48},
+                "47037991.NEW": {"sel_min": 25, "sel_max": 49},
+                "47130906.NEW": {"sel_min": 67, "sel_max": 103},
+                "47237019.NEW": {"sel_min": 6, "sel_max": 9},
+                "47237130.NEW": {"sel_min": 14, "sel_max": 38},
+                "47728761.NEW": {"sel_min": 26, "sel_max": 38},
+                "47952411.NEW": {"sel_min": 12, "sel_max": 72},
+                "49373721.NEW": {"sel_min": 10, "sel_max": 11}
+            }
+        }, "30% Delay": {
+            "Stable": {
+                "11990014.NEW": {"sel_min": 22, "sel_max": 23},
+                "12137020.NEW": {"sel_min": 294, "sel_max": 374},
+                "19076553.NEW": {"sel_min": 268, "sel_max": 1428},
+                "20040968.NEW": {"sel_min": 225, "sel_max": 403},
+                "20041164.NEW": {"sel_min": 437, "sel_max": 659},
+                "20160250.NEW": {"sel_min": 21, "sel_max": 26},
+                "20160251.NEW": {"sel_min": 9, "sel_max": 15},
+                "20238759.NEW": {"sel_min": 24, "sel_max": 46},
+                "20460015.NEW": {"sel_min": 88, "sel_max": 368},
+                "20608890.NEW": {"sel_min": 12490, "sel_max": 15865},
+                "20620825.NEW": {"sel_min": 44, "sel_max": 56},
+                "20741305.NEW": {"sel_min": 1029, "sel_max": 1589},
+                "20803113.NEW": {"sel_min": 2749, "sel_max": 3154},
+                "20803130.NEW": {"sel_min": 1321, "sel_max": 2233},
+                "20807202.NEW": {"sel_min": 289, "sel_max": 559},
+                "20827801.NEW": {"sel_min": 21, "sel_max": 31},
+                "20990002.NEW": {"sel_min": 168, "sel_max": 232},
+                "20990017.NEW": {"sel_min": 0, "sel_max": 120},
+                "20990070.NEW": {"sel_min": 37410, "sel_max": 38210},
+                "22000078.NEW": {"sel_min": 110, "sel_max": 153},
+                "22028904.NEW": {"sel_min": 37, "sel_max": 63},
+                "22060911.NEW": {"sel_min": 146, "sel_max": 166},
+                "22061301.NEW": {"sel_min": 53, "sel_max": 133},
+                "22195430.NEW": {"sel_min": 64, "sel_max": 109},
+                "22218209.NEW": {"sel_min": 311, "sel_max": 471},
+                "22251494.NEW": {"sel_min": 70, "sel_max": 85},
+                "22299521.NEW": {"sel_min": 142, "sel_max": 342},
+                "22306300.NEW": {"sel_min": 184, "sel_max": 424},
+                "22418412.NEW": {"sel_min": 120, "sel_max": 200},
+                "22453241.NEW": {"sel_min": 68, "sel_max": 83},
+                "22456613.NEW": {"sel_min": 220, "sel_max": 268},
+                "22456778.NEW": {"sel_min": 113, "sel_max": 158},
+                "22457816.NEW": {"sel_min": 187, "sel_max": 247},
+                "22458010.NEW": {"sel_min": 43, "sel_max": 51},
+                "22458258.NEW": {"sel_min": 163, "sel_max": 205},
+                "22458294.NEW": {"sel_min": 120, "sel_max": 135},
+                "22458448.NEW": {"sel_min": 204, "sel_max": 294},
+                "22458837.NEW": {"sel_min": 16, "sel_max": 22},
+                "22458903.NEW": {"sel_min": 61, "sel_max": 83},
+                "22458994.NEW": {"sel_min": 126, "sel_max": 186},
+                "22459059.NEW": {"sel_min": 167, "sel_max": 207},
+                "22459070.NEW": {"sel_min": 336, "sel_max": 376},
+                "22459339.NEW": {"sel_min": 67, "sel_max": 98},
+                "22459347.NEW": {"sel_min": 218, "sel_max": 298},
+                "22459364.NEW": {"sel_min": 124, "sel_max": 184},
+                "22459463.NEW": {"sel_min": 419, "sel_max": 533},
+                "22459478.NEW": {"sel_min": 1166, "sel_max": 1416},
+                "22459495.NEW": {"sel_min": 91, "sel_max": 106},
+                "22459702.NEW": {"sel_min": 113, "sel_max": 128},
+                "22459735.NEW": {"sel_min": 808, "sel_max": 1024},
+                "22459781.NEW": {"sel_min": 49, "sel_max": 67},
+                "22459825.NEW": {"sel_min": 187, "sel_max": 217},
+                "22460148.NEW": {"sel_min": 52, "sel_max": 74},
+                "22460321.NEW": {"sel_min": 90, "sel_max": 100},
+                "22505794.NEW": {"sel_min": 2000, "sel_max": 2400},
+                "22521056.NEW": {"sel_min": 58, "sel_max": 106},
+                "22525751.NEW": {"sel_min": 10, "sel_max": 20},
+                "22611300.NEW": {"sel_min": 160, "sel_max": 240},
+                "22642506.NEW": {"sel_min": 337, "sel_max": 443},
+                "22811150.NEW": {"sel_min": 58, "sel_max": 106},
+                "22812109.NEW": {"sel_min": 4, "sel_max": 24},
+                "22844805.NEW": {"sel_min": 689, "sel_max": 854},
+                "22990003.NEW": {"sel_min": 312, "sel_max": 472},
+                "22990018.NEW": {"sel_min": 0, "sel_max": 13},
+                "22990101.NEW": {"sel_min": 139, "sel_max": 187},
+                "24387201.NEW": {"sel_min": 20, "sel_max": 42},
+                "25706033.NEW": {"sel_min": 128, "sel_max": 223},
+                "25794830.NEW": {"sel_min": 72, "sel_max": 80},
+                "25794833.NEW": {"sel_min": 31, "sel_max": 39},
+                "25990239.NEW": {"sel_min": 171, "sel_max": 221},
+                "29045000.NEW": {"sel_min": 6, "sel_max": 46},
+                "29132262.NEW": {"sel_min": 86, "sel_max": 92},
+                "29340815.NEW": {"sel_min": 420, "sel_max": 700},
+                "29990000.NEW": {"sel_min": 194, "sel_max": 434},
+                "29990001.NEW": {"sel_min": 120, "sel_max": 147},
+                "30280000.NEW": {"sel_min": 177, "sel_max": 222},
+                "37203403.NEW": {"sel_min": 25, "sel_max": 185},
+                "37362525.NEW": {"sel_min": 16, "sel_max": 20},
+                "37395505.NEW": {"sel_min": 46, "sel_max": 186},
+                "37725809.NEW": {"sel_min": 6, "sel_max": 24},
+                "45293501.NEW": {"sel_min": 16, "sel_max": 17},
+                "45294145.NEW": {"sel_min": 4, "sel_max": 8},
+                "45724091.NEW": {"sel_min": 12, "sel_max": 25},
+                "47000789.NEW": {"sel_min": 11, "sel_max": 31},
+                "47037817.NEW": {"sel_min": 35, "sel_max": 48},
+                "47037991.NEW": {"sel_min": 25, "sel_max": 49},
+                "47130906.NEW": {"sel_min": 67, "sel_max": 103},
+                "47237019.NEW": {"sel_min": 6, "sel_max": 9},
+                "47237130.NEW": {"sel_min": 14, "sel_max": 38},
+                "47728761.NEW": {"sel_min": 26, "sel_max": 38},
+                "47952411.NEW": {"sel_min": 12, "sel_max": 72},
+                "49373721.NEW": {"sel_min": 10, "sel_max": 11}
+            }, "Moderate": {
+                "11990014.NEW": {"sel_min": 22, "sel_max": 23},
+                "12137020.NEW": {"sel_min": 294, "sel_max": 374},
+                "19076553.NEW": {"sel_min": 268, "sel_max": 1428},
+                "20040968.NEW": {"sel_min": 225, "sel_max": 403},
+                "20041164.NEW": {"sel_min": 437, "sel_max": 659},
+                "20160250.NEW": {"sel_min": 21, "sel_max": 26},
+                "20160251.NEW": {"sel_min": 9, "sel_max": 15},
+                "20238759.NEW": {"sel_min": 24, "sel_max": 46},
+                "20460015.NEW": {"sel_min": 88, "sel_max": 368},
+                "20608890.NEW": {"sel_min": 12490, "sel_max": 15865},
+                "20620825.NEW": {"sel_min": 44, "sel_max": 56},
+                "20741305.NEW": {"sel_min": 1029, "sel_max": 1589},
+                "20803113.NEW": {"sel_min": 2749, "sel_max": 3154},
+                "20803130.NEW": {"sel_min": 1321, "sel_max": 2233},
+                "20807202.NEW": {"sel_min": 289, "sel_max": 559},
+                "20827801.NEW": {"sel_min": 21, "sel_max": 31},
+                "20990002.NEW": {"sel_min": 168, "sel_max": 232},
+                "20990017.NEW": {"sel_min": 0, "sel_max": 120},
+                "20990070.NEW": {"sel_min": 37410, "sel_max": 38210},
+                "22000078.NEW": {"sel_min": 110, "sel_max": 153},
+                "22028904.NEW": {"sel_min": 37, "sel_max": 63},
+                "22060911.NEW": {"sel_min": 146, "sel_max": 166},
+                "22061301.NEW": {"sel_min": 53, "sel_max": 133},
+                "22195430.NEW": {"sel_min": 64, "sel_max": 109},
+                "22218209.NEW": {"sel_min": 311, "sel_max": 471},
+                "22251494.NEW": {"sel_min": 70, "sel_max": 85},
+                "22299521.NEW": {"sel_min": 142, "sel_max": 342},
+                "22306300.NEW": {"sel_min": 184, "sel_max": 424},
+                "22418412.NEW": {"sel_min": 120, "sel_max": 200},
+                "22453241.NEW": {"sel_min": 68, "sel_max": 83},
+                "22456613.NEW": {"sel_min": 220, "sel_max": 268},
+                "22456778.NEW": {"sel_min": 113, "sel_max": 158},
+                "22457816.NEW": {"sel_min": 187, "sel_max": 247},
+                "22458010.NEW": {"sel_min": 43, "sel_max": 51},
+                "22458258.NEW": {"sel_min": 163, "sel_max": 205},
+                "22458294.NEW": {"sel_min": 120, "sel_max": 135},
+                "22458448.NEW": {"sel_min": 204, "sel_max": 294},
+                "22458837.NEW": {"sel_min": 16, "sel_max": 22},
+                "22458903.NEW": {"sel_min": 61, "sel_max": 83},
+                "22458994.NEW": {"sel_min": 126, "sel_max": 186},
+                "22459059.NEW": {"sel_min": 167, "sel_max": 207},
+                "22459070.NEW": {"sel_min": 336, "sel_max": 376},
+                "22459339.NEW": {"sel_min": 67, "sel_max": 98},
+                "22459347.NEW": {"sel_min": 218, "sel_max": 298},
+                "22459364.NEW": {"sel_min": 124, "sel_max": 184},
+                "22459463.NEW": {"sel_min": 419, "sel_max": 533},
+                "22459478.NEW": {"sel_min": 1166, "sel_max": 1416},
+                "22459495.NEW": {"sel_min": 91, "sel_max": 106},
+                "22459702.NEW": {"sel_min": 113, "sel_max": 128},
+                "22459735.NEW": {"sel_min": 808, "sel_max": 1024},
+                "22459781.NEW": {"sel_min": 49, "sel_max": 67},
+                "22459825.NEW": {"sel_min": 187, "sel_max": 217},
+                "22460148.NEW": {"sel_min": 52, "sel_max": 74},
+                "22460321.NEW": {"sel_min": 90, "sel_max": 100},
+                "22505794.NEW": {"sel_min": 2000, "sel_max": 2400},
+                "22521056.NEW": {"sel_min": 58, "sel_max": 106},
+                "22525751.NEW": {"sel_min": 10, "sel_max": 20},
+                "22611300.NEW": {"sel_min": 160, "sel_max": 240},
+                "22642506.NEW": {"sel_min": 337, "sel_max": 443},
+                "22811150.NEW": {"sel_min": 58, "sel_max": 106},
+                "22812109.NEW": {"sel_min": 4, "sel_max": 24},
+                "22844805.NEW": {"sel_min": 689, "sel_max": 854},
+                "22990003.NEW": {"sel_min": 312, "sel_max": 472},
+                "22990018.NEW": {"sel_min": 0, "sel_max": 13},
+                "22990101.NEW": {"sel_min": 139, "sel_max": 187},
+                "24387201.NEW": {"sel_min": 20, "sel_max": 42},
+                "25706033.NEW": {"sel_min": 128, "sel_max": 223},
+                "25794830.NEW": {"sel_min": 72, "sel_max": 80},
+                "25794833.NEW": {"sel_min": 31, "sel_max": 39},
+                "25990239.NEW": {"sel_min": 171, "sel_max": 221},
+                "29045000.NEW": {"sel_min": 6, "sel_max": 46},
+                "29132262.NEW": {"sel_min": 86, "sel_max": 92},
+                "29340815.NEW": {"sel_min": 420, "sel_max": 700},
+                "29990000.NEW": {"sel_min": 194, "sel_max": 434},
+                "29990001.NEW": {"sel_min": 120, "sel_max": 147},
+                "30280000.NEW": {"sel_min": 177, "sel_max": 222},
+                "37203403.NEW": {"sel_min": 25, "sel_max": 185},
+                "37362525.NEW": {"sel_min": 16, "sel_max": 20},
+                "37395505.NEW": {"sel_min": 46, "sel_max": 186},
+                "37725809.NEW": {"sel_min": 6, "sel_max": 24},
+                "45293501.NEW": {"sel_min": 16, "sel_max": 17},
+                "45294145.NEW": {"sel_min": 4, "sel_max": 8},
+                "45724091.NEW": {"sel_min": 12, "sel_max": 25},
+                "47000789.NEW": {"sel_min": 11, "sel_max": 31},
+                "47037817.NEW": {"sel_min": 35, "sel_max": 48},
+                "47037991.NEW": {"sel_min": 25, "sel_max": 49},
+                "47130906.NEW": {"sel_min": 67, "sel_max": 103},
+                "47237019.NEW": {"sel_min": 6, "sel_max": 9},
+                "47237130.NEW": {"sel_min": 14, "sel_max": 38},
+                "47728761.NEW": {"sel_min": 26, "sel_max": 38},
+                "47952411.NEW": {"sel_min": 12, "sel_max": 72},
+                "49373721.NEW": {"sel_min": 10, "sel_max": 11}
+            }, "Spiky": {
+                "11990014.NEW": {"sel_min": 22, "sel_max": 23},
+                "12137020.NEW": {"sel_min": 294, "sel_max": 374},
+                "19076553.NEW": {"sel_min": 268, "sel_max": 1428},
+                "20040968.NEW": {"sel_min": 225, "sel_max": 403},
+                "20041164.NEW": {"sel_min": 437, "sel_max": 659},
+                "20160250.NEW": {"sel_min": 21, "sel_max": 26},
+                "20160251.NEW": {"sel_min": 9, "sel_max": 15},
+                "20238759.NEW": {"sel_min": 24, "sel_max": 46},
+                "20460015.NEW": {"sel_min": 88, "sel_max": 368},
+                "20608890.NEW": {"sel_min": 12490, "sel_max": 15865},
+                "20620825.NEW": {"sel_min": 44, "sel_max": 56},
+                "20741305.NEW": {"sel_min": 1029, "sel_max": 1589},
+                "20803113.NEW": {"sel_min": 2749, "sel_max": 3154},
+                "20803130.NEW": {"sel_min": 1321, "sel_max": 2233},
+                "20807202.NEW": {"sel_min": 289, "sel_max": 559},
+                "20827801.NEW": {"sel_min": 21, "sel_max": 31},
+                "20990002.NEW": {"sel_min": 168, "sel_max": 232},
+                "20990017.NEW": {"sel_min": 0, "sel_max": 120},
+                "20990070.NEW": {"sel_min": 37410, "sel_max": 38210},
+                "22000078.NEW": {"sel_min": 110, "sel_max": 153},
+                "22028904.NEW": {"sel_min": 37, "sel_max": 63},
+                "22060911.NEW": {"sel_min": 146, "sel_max": 166},
+                "22061301.NEW": {"sel_min": 53, "sel_max": 133},
+                "22195430.NEW": {"sel_min": 64, "sel_max": 109},
+                "22218209.NEW": {"sel_min": 311, "sel_max": 471},
+                "22251494.NEW": {"sel_min": 70, "sel_max": 85},
+                "22299521.NEW": {"sel_min": 142, "sel_max": 342},
+                "22306300.NEW": {"sel_min": 184, "sel_max": 424},
+                "22418412.NEW": {"sel_min": 120, "sel_max": 200},
+                "22453241.NEW": {"sel_min": 68, "sel_max": 83},
+                "22456613.NEW": {"sel_min": 220, "sel_max": 268},
+                "22456778.NEW": {"sel_min": 113, "sel_max": 158},
+                "22457816.NEW": {"sel_min": 187, "sel_max": 247},
+                "22458010.NEW": {"sel_min": 43, "sel_max": 51},
+                "22458258.NEW": {"sel_min": 163, "sel_max": 205},
+                "22458294.NEW": {"sel_min": 120, "sel_max": 135},
+                "22458448.NEW": {"sel_min": 204, "sel_max": 294},
+                "22458837.NEW": {"sel_min": 16, "sel_max": 22},
+                "22458903.NEW": {"sel_min": 61, "sel_max": 83},
+                "22458994.NEW": {"sel_min": 126, "sel_max": 186},
+                "22459059.NEW": {"sel_min": 167, "sel_max": 207},
+                "22459070.NEW": {"sel_min": 336, "sel_max": 376},
+                "22459339.NEW": {"sel_min": 67, "sel_max": 98},
+                "22459347.NEW": {"sel_min": 218, "sel_max": 298},
+                "22459364.NEW": {"sel_min": 124, "sel_max": 184},
+                "22459463.NEW": {"sel_min": 419, "sel_max": 533},
+                "22459478.NEW": {"sel_min": 1166, "sel_max": 1416},
+                "22459495.NEW": {"sel_min": 91, "sel_max": 106},
+                "22459702.NEW": {"sel_min": 113, "sel_max": 128},
+                "22459735.NEW": {"sel_min": 808, "sel_max": 1024},
+                "22459781.NEW": {"sel_min": 49, "sel_max": 67},
+                "22459825.NEW": {"sel_min": 187, "sel_max": 217},
+                "22460148.NEW": {"sel_min": 52, "sel_max": 74},
+                "22460321.NEW": {"sel_min": 90, "sel_max": 100},
+                "22505794.NEW": {"sel_min": 2000, "sel_max": 2400},
+                "22521056.NEW": {"sel_min": 58, "sel_max": 106},
+                "22525751.NEW": {"sel_min": 10, "sel_max": 20},
+                "22611300.NEW": {"sel_min": 160, "sel_max": 240},
+                "22642506.NEW": {"sel_min": 337, "sel_max": 443},
+                "22811150.NEW": {"sel_min": 58, "sel_max": 106},
+                "22812109.NEW": {"sel_min": 4, "sel_max": 24},
+                "22844805.NEW": {"sel_min": 689, "sel_max": 854},
+                "22990003.NEW": {"sel_min": 312, "sel_max": 472},
+                "22990018.NEW": {"sel_min": 0, "sel_max": 13},
+                "22990101.NEW": {"sel_min": 139, "sel_max": 187},
+                "24387201.NEW": {"sel_min": 20, "sel_max": 42},
+                "25706033.NEW": {"sel_min": 128, "sel_max": 223},
+                "25794830.NEW": {"sel_min": 72, "sel_max": 80},
+                "25794833.NEW": {"sel_min": 31, "sel_max": 39},
+                "25990239.NEW": {"sel_min": 171, "sel_max": 221},
+                "29045000.NEW": {"sel_min": 6, "sel_max": 46},
+                "29132262.NEW": {"sel_min": 86, "sel_max": 92},
+                "29340815.NEW": {"sel_min": 420, "sel_max": 700},
+                "29990000.NEW": {"sel_min": 194, "sel_max": 434},
+                "29990001.NEW": {"sel_min": 120, "sel_max": 147},
+                "30280000.NEW": {"sel_min": 177, "sel_max": 222},
+                "37203403.NEW": {"sel_min": 25, "sel_max": 185},
+                "37362525.NEW": {"sel_min": 16, "sel_max": 20},
+                "37395505.NEW": {"sel_min": 46, "sel_max": 186},
+                "37725809.NEW": {"sel_min": 6, "sel_max": 24},
+                "45293501.NEW": {"sel_min": 16, "sel_max": 17},
+                "45294145.NEW": {"sel_min": 4, "sel_max": 8},
+                "45724091.NEW": {"sel_min": 12, "sel_max": 25},
+                "47000789.NEW": {"sel_min": 11, "sel_max": 31},
+                "47037817.NEW": {"sel_min": 35, "sel_max": 48},
+                "47037991.NEW": {"sel_min": 25, "sel_max": 49},
+                "47130906.NEW": {"sel_min": 67, "sel_max": 103},
+                "47237019.NEW": {"sel_min": 6, "sel_max": 9},
+                "47237130.NEW": {"sel_min": 14, "sel_max": 38},
+                "47728761.NEW": {"sel_min": 26, "sel_max": 38},
+                "47952411.NEW": {"sel_min": 12, "sel_max": 72},
+                "49373721.NEW": {"sel_min": 10, "sel_max": 11}
+            }
+        }
+    };
+
+    function fillRateColor(rate) {
+        if (rate >= 0.95) return '#27AE60';
+        if (rate >= 0.8) return '#F2C94C';
+        return '#CC0033';
+    }
 
     function fmtDollars(n) {
         const abs = Math.abs(n);
@@ -3378,9 +4934,18 @@
         const cur = mmCurrentPolicy[leadTime][demand];
         const sel = mmSelectedPolicy[leadTime][demand][policy];
         document.getElementById('mmCurrentValue').textContent = fmtDollars(cur.value);
-        document.getElementById('mmCurrentFill').textContent = (cur.fillRate * 100).toFixed(2) + '%';
         document.getElementById('mmSelectedValue').textContent = fmtDollars(sel.value);
-        document.getElementById('mmSelectedFill').textContent = (sel.fillRate * 100).toFixed(2) + '%';
+
+        const curColor = fillRateColor(cur.fillRate);
+        const selColor = fillRateColor(sel.fillRate);
+        drawGauge('mmCurrentGaugeSvg', cur.fillRate * 100, curColor, '#3a3a3a', '#fff');
+        drawGauge('mmSelectedGaugeSvg', sel.fillRate * 100, selColor, '#3a3a3a', '#fff');
+        const mmCurFillEl = document.getElementById('mmCurrentFill');
+        mmCurFillEl.textContent = (cur.fillRate * 100).toFixed(2) + '%';
+        mmCurFillEl.style.color = curColor;
+        const mmSelFillEl = document.getElementById('mmSelectedFill');
+        mmSelFillEl.textContent = (sel.fillRate * 100).toFixed(2) + '%';
+        mmSelFillEl.style.color = selColor;
 
         const deltaValue = cur.value - sel.value;
         const deltaFill = (sel.fillRate - cur.fillRate) * 100;
@@ -3392,16 +4957,67 @@
         const rows = mmValueReduction[policy];
         const max = rows[0].value;
         const rankColors = ['#CC0033', '#E0703C', '#D9A23B', '#8A8A8A', '#6B6B6B', '#565656', '#4A4A4A', '#3D3D3D'];
-        document.getElementById('mmLbList').innerHTML = rows.map((row, idx) => `
-      <div class="lb-row">
+        const mmLbListEl = document.getElementById('mmLbList');
+        mmLbListEl.innerHTML = rows.map((row, idx) => {
+            const isSelected = mmSelectedItem === row.item;
+            return `
+      <div class="lb-row clickable" data-item="${row.item}" style="${isSelected ? 'outline:2px solid var(--scarlet);background:#252525' : ''}">
         <span class="lb-rank" style="background:${rankColors[idx]}">${idx + 1}</span>
         <span class="lb-code">${row.item}</span>
         <div class="lb-track"><div class="lb-fill" style="width:${(row.value / max) * 100}%;background:${rankColors[idx]}"></div></div>
         <span class="lb-val">${fmtDollars(row.value)}</span>
       </div>
-    `).join('');
+    `;
+        }).join('');
+        mmLbListEl.querySelectorAll('.lb-row').forEach(row => {
+            row.addEventListener('click', () => {
+                const code = row.dataset.item;
+                mmSelectedItem = (mmSelectedItem === code) ? null : code;
+                updateMinMax();
+            });
+        });
 
+        renderMmItemDetail();
         renderStockoutDist();
+        renderMmRecommendationTable();
+    }
+
+    // ===== Selected item detail (cross-referenced with Current Inventory Status items[]) =====
+    function renderMmItemDetail() {
+        const panel = document.getElementById('mmItemDetail');
+        if (!mmSelectedItem) {
+            panel.innerHTML = `<p class="item-detail-empty">Click an item in the leaderboard above to see its detail here.</p>`;
+            return;
+        }
+        const vrRow = (mmValueReduction[mmState.policy] || []).find(r => r.item === mmSelectedItem);
+        const meta = items.find(i => i.item === mmSelectedItem);
+        const pc = meta ? (priorityColors[meta.priority] || '#444') : '#444';
+        const rc = meta ? (riskColors[meta.poRisk] || {bg: '#232323', text: '#9A9A9A', border: '#444'}) : {
+            bg: '#232323',
+            text: '#9A9A9A',
+            border: '#444'
+        };
+        panel.innerHTML = `
+      <div class="item-row" style="border-left-color:${rc.border}">
+        <div class="item-row-top">
+          <span class="code">${mmSelectedItem}</span>
+          ${meta ? `<span class="pill" style="background:${pc}22;color:${pc}">${meta.priority}</span>` : ''}
+          ${meta ? `<span class="pill" style="background:#2a2a2a;color:#cfcfcf">${meta.storage || '—'}</span>` : ''}
+          ${meta ? `<span class="risk" style="background:${rc.bg};color:${rc.text}">${meta.poRisk || '—'}</span>` : ''}
+        </div>
+        <p class="desc">${(meta && meta.desc) || (vrRow ? mmSelectedItem : '—')}</p>
+        <div class="meta">
+          ${vrRow ? `<span>Value reduction (${mmState.policy}): <strong>${fmtDollars(vrRow.value)}</strong></span>` : `<span style="color:var(--dark-muted)">Not among the top value-reduction items under the ${mmState.policy} policy.</span>`}
+          ${meta ? `<span>On hand: <strong>${meta.onHand.toLocaleString()}</strong></span>` : ''}
+          ${meta && meta.leadTime !== null ? `<span>Lead time: <strong>${meta.leadTime} days</strong></span>` : ''}
+          ${meta && meta.recStorage ? `<span>Recommended storage: <strong>${meta.recStorage}</strong></span>` : ''}
+        </div>
+        <p style="font-size:11px;color:var(--dark-muted);margin:10px 0 0">Highlighted in the Min-Max Recommendation
+            table below. Stockout-day detail for this specific item isn't shown here — that field still has the same
+            data-quality issue as the aggregate distribution below, so a per-item number here would be misleading
+            rather than useful.</p>
+      </div>
+    `;
     }
 
     // ===== Stockout-Day Risk Distribution (aggregate, scenario-driven) =====
@@ -3444,6 +5060,60 @@
     });
 
     updateMinMax();
+
+    // ===== Min-Max Recommendation table (Current confirmed; Selected confirmed for Balanced only) =====
+    function renderMmRecommendationTable() {
+        const term = document.getElementById('mmRecSearch').value.trim().toLowerCase();
+        const filtered = mmCurrentThresholds.filter(r => {
+            if (!term) return true;
+            return (r.item + ' ' + r.desc).toLowerCase().includes(term);
+        });
+        const {leadTime, demand, policy} = mmState;
+        const selMap = (policy === 'Balanced')
+            ? (mmSelectedThresholdsBalanced[leadTime] && mmSelectedThresholdsBalanced[leadTime][demand])
+            : null;
+        const wrap = document.getElementById('mmRecTableWrap');
+        wrap.innerHTML = `
+      <table class="crosstab-table">
+        <thead>
+          <tr>
+            <th style="text-align:left">Item</th>
+            <th style="text-align:left">Description</th>
+            <th>Current Min</th>
+            <th>Current Max</th>
+            <th>Recommended Min</th>
+            <th>Recommended Max</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${filtered.map(r => {
+            const sel = selMap ? selMap[r.item] : null;
+            const isSelected = r.item === mmSelectedItem;
+            return `
+          <tr class="${isSelected ? 'mm-rec-selected-row' : ''}" data-item="${r.item}">
+            <td style="text-align:left;font-family:'IBM Plex Mono',monospace;font-size:11px">${r.item}</td>
+            <td style="text-align:left">${r.desc}</td>
+            <td>${r.cur_min.toLocaleString()}</td>
+            <td>${r.cur_max.toLocaleString()}</td>
+            <td style="${sel ? 'color:#27AE60;font-weight:600' : 'color:var(--dark-muted)'}">${sel ? sel.sel_min.toLocaleString() : '—'}</td>
+            <td style="${sel ? 'color:#27AE60;font-weight:600' : 'color:var(--dark-muted)'}">${sel ? sel.sel_max.toLocaleString() : '—'}</td>
+          </tr>
+          `;
+        }).join('')}
+        </tbody>
+      </table>
+    `;
+        if (mmSelectedItem) {
+            const selRow = wrap.querySelector('.mm-rec-selected-row');
+            if (selRow) selRow.scrollIntoView({behavior: 'smooth', block: 'center'});
+        }
+        const policyNote = policy === 'Balanced'
+            ? `Showing ${filtered.length} of ${mmCurrentThresholds.length} items.`
+            : `Showing ${filtered.length} of ${mmCurrentThresholds.length} items. Recommended thresholds are only computed for a small subset of items under ${policy}.`;
+        document.getElementById('mmRecCount').textContent = policyNote;
+    }
+
+    document.getElementById('mmRecSearch').addEventListener('input', renderMmRecommendationTable);
 
     // ===== Definitions -> jump to visual =====
     function jumpToViz(id) {
@@ -3719,15 +5389,24 @@
     // ===== Procurement exposure leaderboard (click a bar to filter everything to that item) =====
     function renderLeaderboard() {
         const max = exposureTop[0].value;
-        const rankColors = ['#CC0033', '#E0703C', '#D9A23B', '#8A8A8A', '#6B6B6B', '#565656'];
+        const rankColor = (idx, total) => {
+            if (idx === 0) return '#CC0033';
+            if (idx === 1) return '#E0703C';
+            if (idx === 2) return '#D9A23B';
+            // fade from mid-gray to dark gray across the remaining rows
+            const t = idx / Math.max(total - 1, 1);
+            const gray = Math.round(140 - t * 90);
+            return `rgb(${gray},${gray},${gray})`;
+        };
         const list = document.getElementById('lbList');
         list.innerHTML = exposureTop.map((row, idx) => {
             const isSelected = globalFilter.selectedItem === row.item;
+            const color = rankColor(idx, exposureTop.length);
             return `
     <div class="lb-row" data-item="${row.item}" style="cursor:pointer;${isSelected ? 'outline:2px solid var(--scarlet);background:#252525' : ''}">
-      <span class="lb-rank" style="background:${rankColors[idx]}">${idx + 1}</span>
+      <span class="lb-rank" style="background:${color}">${idx + 1}</span>
       <span class="lb-code">${row.item}</span>
-      <div class="lb-track"><div class="lb-fill" style="width:${(row.value / max) * 100}%;background:${rankColors[idx]}"></div></div>
+      <div class="lb-track"><div class="lb-fill" style="width:${(row.value / max) * 100}%;background:${color}"></div></div>
       <span class="lb-val">$${(row.value / 1e6).toFixed(1)}M</span>
     </div>
   `;
@@ -3743,6 +5422,7 @@
                     globalFilter.searchTerm = '';
                     document.getElementById('globalSearch').value = code;
                 }
+
                 renderAll();
             });
         });
