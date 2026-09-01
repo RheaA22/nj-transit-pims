@@ -430,8 +430,27 @@
             font-family: 'IBM Plex Mono', monospace;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            color: var(--dark-muted);
+            color: #FFFFFF;
             margin: 0 0 8px;
+        }
+
+        /* Distinct color themes per scenario dimension */
+        .toggle-row.leadtime .toggle-btn.active {
+            background: #2F80ED;
+            border-color: #2F80ED;
+            color: #fff;
+        }
+
+        .toggle-row.demand .toggle-btn.active {
+            background: var(--gold);
+            border-color: var(--gold);
+            color: #1a1a1a;
+        }
+
+        .toggle-row.policy .toggle-btn.active {
+            background: var(--scarlet);
+            border-color: var(--scarlet);
+            color: #fff;
         }
 
         /* ---- policy comparison card ---- */
@@ -1299,7 +1318,7 @@
                             <div class="scenario-panel">
                                 <div>
                                     <p class="scenario-group-label">Lead Time Variability</p>
-                                    <div class="toggle-row" id="mmLeadTimeRow">
+                                    <div class="toggle-row leadtime" id="mmLeadTimeRow">
                                         <div class="toggle-btn" data-v="Normal Lead Time">Normal</div>
                                         <div class="toggle-btn active" data-v="15% Delay">15% Delay</div>
                                         <div class="toggle-btn" data-v="30% Delay">30% Delay</div>
@@ -1307,7 +1326,7 @@
                                 </div>
                                 <div>
                                     <p class="scenario-group-label">Demand Profile</p>
-                                    <div class="toggle-row" id="mmDemandRow">
+                                    <div class="toggle-row demand" id="mmDemandRow">
                                         <div class="toggle-btn" data-v="Stable">Stable</div>
                                         <div class="toggle-btn active" data-v="Moderate">Moderate</div>
                                         <div class="toggle-btn" data-v="Spiky">Spiky</div>
@@ -1315,7 +1334,7 @@
                                 </div>
                                 <div>
                                     <p class="scenario-group-label">Policy Type</p>
-                                    <div class="toggle-row" id="mmPolicyRow">
+                                    <div class="toggle-row policy" id="mmPolicyRow">
                                         <div class="toggle-btn" data-v="Lean">Lean</div>
                                         <div class="toggle-btn active" data-v="Balanced">Balanced</div>
                                         <div class="toggle-btn" data-v="High Service">High Service</div>
@@ -1361,14 +1380,25 @@
                             <div id="mmLbList"></div>
                         </div>
 
+                        <!-- Stockout-Day Risk Distribution -->
+                        <div class="dcard full" id="viz-stockout-dist">
+                            <p class="dcard-title">Stockout-day risk distribution</p>
+                            <p class="dcard-cap">Share of exported recommendation results, for the selected scenario,
+                                falling into each stockout-day risk band. This is an aggregate distribution across all
+                                result rows returned for the scenario — not a per-item breakdown, since the export's
+                                item-level min/max values are currently unreliable (see note below).</p>
+                            <div id="stockoutDistWrap"></div>
+                            <p class="item-count" id="stockoutDistCaveat" style="margin-top:10px"></p>
+                        </div>
+
                     </div>
 
-                    <p class="dark-section-note" style="margin-top:8px">Two visuals from the Power BI page —
-                        Stockout-Day Risk Distribution and the item-level Min-Max Recommendation table (current vs.
-                        recommended thresholds) — are still pending. The risk-distribution export returned the same item
-                        count for every risk band, which points to an issue with that measure rather than real data; the
-                        recommendation table needs its min/max measure names confirmed in DAX query view before it can
-                        be exported.</p>
+                    <p class="dark-section-note" style="margin-top:8px">The item-level Min-Max Recommendation table
+                        (current vs. recommended thresholds per item) is still pending. The underlying export ties
+                        wildly different items — e.g. a windshield and a brake pad — to identical min/max and value
+                        reduction figures for a given scenario, the same many-to-many join issue noted below for the
+                        Stockout-Day Risk Distribution. The table needs its min/max measure names confirmed in DAX
+                        query view, at item grain, before it can be trusted.</p>
                 </div>
             </div>
             <!-- ============ END TAB: MIN-MAX OPTIMIZATION ============ -->
@@ -1464,8 +1494,7 @@
                     width="1920"
                     height="1080"
                     style="width:100%;display:block;background:#000">
-                <source src="dashboard_walkthrough.mp4" type="video/mp4">
-                Your browser doesn't support embedded video.
+                <source src="Dashboard%20Walkthrough%20Video.mp4" type="video/mp4">
             </video>
         </div>
     </div>
@@ -2982,6 +3011,355 @@
         }, {item: "22459070.NEW", value: 75769.8088647509}, {item: "20807202.NEW", value: 39464.94043404363}]
     };
 
+    const STOCKOUT_DIST = {
+        "Normal Lead Time": {
+            "Stable": {
+                "Lean": {
+                    "total": 276,
+                    "bands": [{"label": "0 days", "n": 92, "pct": 33.3}, {
+                        "label": "0\u20130.05 days",
+                        "n": 92,
+                        "pct": 33.3
+                    }, {"label": "0.05\u20130.25 days", "n": 0, "pct": 0.0}, {
+                        "label": "0.25\u20131 day",
+                        "n": 92,
+                        "pct": 33.3
+                    }, {"label": "1+ days", "n": 0, "pct": 0.0}]
+                },
+                "Balanced": {
+                    "total": 6808,
+                    "bands": [{"label": "0 days", "n": 5888, "pct": 86.5}, {
+                        "label": "0\u20130.05 days",
+                        "n": 828,
+                        "pct": 12.2
+                    }, {"label": "0.05\u20130.25 days", "n": 92, "pct": 1.4}, {
+                        "label": "0.25\u20131 day",
+                        "n": 0,
+                        "pct": 0.0
+                    }, {"label": "1+ days", "n": 0, "pct": 0.0}]
+                },
+                "High Service": {
+                    "total": 276,
+                    "bands": [{"label": "0 days", "n": 92, "pct": 33.3}, {
+                        "label": "0\u20130.05 days",
+                        "n": 92,
+                        "pct": 33.3
+                    }, {"label": "0.05\u20130.25 days", "n": 92, "pct": 33.3}, {
+                        "label": "0.25\u20131 day",
+                        "n": 0,
+                        "pct": 0.0
+                    }, {"label": "1+ days", "n": 0, "pct": 0.0}]
+                }
+            },
+            "Moderate": {
+                "Lean": {
+                    "total": 276,
+                    "bands": [{"label": "0 days", "n": 0, "pct": 0.0}, {
+                        "label": "0\u20130.05 days",
+                        "n": 92,
+                        "pct": 33.3
+                    }, {"label": "0.05\u20130.25 days", "n": 92, "pct": 33.3}, {
+                        "label": "0.25\u20131 day",
+                        "n": 92,
+                        "pct": 33.3
+                    }, {"label": "1+ days", "n": 0, "pct": 0.0}]
+                },
+                "Balanced": {
+                    "total": 6808,
+                    "bands": [{"label": "0 days", "n": 1472, "pct": 21.6}, {
+                        "label": "0\u20130.05 days",
+                        "n": 3404,
+                        "pct": 50.0
+                    }, {"label": "0.05\u20130.25 days", "n": 1656, "pct": 24.3}, {
+                        "label": "0.25\u20131 day",
+                        "n": 276,
+                        "pct": 4.1
+                    }, {"label": "1+ days", "n": 0, "pct": 0.0}]
+                },
+                "High Service": {
+                    "total": 276,
+                    "bands": [{"label": "0 days", "n": 0, "pct": 0.0}, {
+                        "label": "0\u20130.05 days",
+                        "n": 184,
+                        "pct": 66.7
+                    }, {"label": "0.05\u20130.25 days", "n": 92, "pct": 33.3}, {
+                        "label": "0.25\u20131 day",
+                        "n": 0,
+                        "pct": 0.0
+                    }, {"label": "1+ days", "n": 0, "pct": 0.0}]
+                }
+            },
+            "Spiky": {
+                "Lean": {
+                    "total": 276,
+                    "bands": [{"label": "0 days", "n": 92, "pct": 33.3}, {
+                        "label": "0\u20130.05 days",
+                        "n": 92,
+                        "pct": 33.3
+                    }, {"label": "0.05\u20130.25 days", "n": 0, "pct": 0.0}, {
+                        "label": "0.25\u20131 day",
+                        "n": 92,
+                        "pct": 33.3
+                    }, {"label": "1+ days", "n": 0, "pct": 0.0}]
+                },
+                "Balanced": {
+                    "total": 6808,
+                    "bands": [{"label": "0 days", "n": 4232, "pct": 62.2}, {
+                        "label": "0\u20130.05 days",
+                        "n": 2024,
+                        "pct": 29.7
+                    }, {"label": "0.05\u20130.25 days", "n": 184, "pct": 2.7}, {
+                        "label": "0.25\u20131 day",
+                        "n": 276,
+                        "pct": 4.1
+                    }, {"label": "1+ days", "n": 92, "pct": 1.4}]
+                },
+                "High Service": {
+                    "total": 276,
+                    "bands": [{"label": "0 days", "n": 92, "pct": 33.3}, {
+                        "label": "0\u20130.05 days",
+                        "n": 92,
+                        "pct": 33.3
+                    }, {"label": "0.05\u20130.25 days", "n": 92, "pct": 33.3}, {
+                        "label": "0.25\u20131 day",
+                        "n": 0,
+                        "pct": 0.0
+                    }, {"label": "1+ days", "n": 0, "pct": 0.0}]
+                }
+            }
+        }, "15% Delay": {
+            "Stable": {
+                "Lean": {
+                    "total": 276,
+                    "bands": [{"label": "0 days", "n": 0, "pct": 0.0}, {
+                        "label": "0\u20130.05 days",
+                        "n": 184,
+                        "pct": 66.7
+                    }, {"label": "0.05\u20130.25 days", "n": 0, "pct": 0.0}, {
+                        "label": "0.25\u20131 day",
+                        "n": 92,
+                        "pct": 33.3
+                    }, {"label": "1+ days", "n": 0, "pct": 0.0}]
+                },
+                "Balanced": {
+                    "total": 6808,
+                    "bands": [{"label": "0 days", "n": 5060, "pct": 74.3}, {
+                        "label": "0\u20130.05 days",
+                        "n": 1564,
+                        "pct": 23.0
+                    }, {"label": "0.05\u20130.25 days", "n": 184, "pct": 2.7}, {
+                        "label": "0.25\u20131 day",
+                        "n": 0,
+                        "pct": 0.0
+                    }, {"label": "1+ days", "n": 0, "pct": 0.0}]
+                },
+                "High Service": {
+                    "total": 276,
+                    "bands": [{"label": "0 days", "n": 92, "pct": 33.3}, {
+                        "label": "0\u20130.05 days",
+                        "n": 92,
+                        "pct": 33.3
+                    }, {"label": "0.05\u20130.25 days", "n": 92, "pct": 33.3}, {
+                        "label": "0.25\u20131 day",
+                        "n": 0,
+                        "pct": 0.0
+                    }, {"label": "1+ days", "n": 0, "pct": 0.0}]
+                }
+            },
+            "Moderate": {
+                "Lean": {
+                    "total": 276,
+                    "bands": [{"label": "0 days", "n": 0, "pct": 0.0}, {
+                        "label": "0\u20130.05 days",
+                        "n": 92,
+                        "pct": 33.3
+                    }, {"label": "0.05\u20130.25 days", "n": 92, "pct": 33.3}, {
+                        "label": "0.25\u20131 day",
+                        "n": 92,
+                        "pct": 33.3
+                    }, {"label": "1+ days", "n": 0, "pct": 0.0}]
+                },
+                "Balanced": {
+                    "total": 6808,
+                    "bands": [{"label": "0 days", "n": 736, "pct": 10.8}, {
+                        "label": "0\u20130.05 days",
+                        "n": 1656,
+                        "pct": 24.3
+                    }, {"label": "0.05\u20130.25 days", "n": 3588, "pct": 52.7}, {
+                        "label": "0.25\u20131 day",
+                        "n": 644,
+                        "pct": 9.5
+                    }, {"label": "1+ days", "n": 184, "pct": 2.7}]
+                },
+                "High Service": {
+                    "total": 276,
+                    "bands": [{"label": "0 days", "n": 0, "pct": 0.0}, {
+                        "label": "0\u20130.05 days",
+                        "n": 92,
+                        "pct": 33.3
+                    }, {"label": "0.05\u20130.25 days", "n": 184, "pct": 66.7}, {
+                        "label": "0.25\u20131 day",
+                        "n": 0,
+                        "pct": 0.0
+                    }, {"label": "1+ days", "n": 0, "pct": 0.0}]
+                }
+            },
+            "Spiky": {
+                "Lean": {
+                    "total": 276,
+                    "bands": [{"label": "0 days", "n": 0, "pct": 0.0}, {
+                        "label": "0\u20130.05 days",
+                        "n": 184,
+                        "pct": 66.7
+                    }, {"label": "0.05\u20130.25 days", "n": 0, "pct": 0.0}, {
+                        "label": "0.25\u20131 day",
+                        "n": 92,
+                        "pct": 33.3
+                    }, {"label": "1+ days", "n": 0, "pct": 0.0}]
+                },
+                "Balanced": {
+                    "total": 6808,
+                    "bands": [{"label": "0 days", "n": 2484, "pct": 36.5}, {
+                        "label": "0\u20130.05 days",
+                        "n": 2760,
+                        "pct": 40.5
+                    }, {"label": "0.05\u20130.25 days", "n": 1012, "pct": 14.9}, {
+                        "label": "0.25\u20131 day",
+                        "n": 276,
+                        "pct": 4.1
+                    }, {"label": "1+ days", "n": 276, "pct": 4.1}]
+                },
+                "High Service": {
+                    "total": 276,
+                    "bands": [{"label": "0 days", "n": 184, "pct": 66.7}, {
+                        "label": "0\u20130.05 days",
+                        "n": 0,
+                        "pct": 0.0
+                    }, {"label": "0.05\u20130.25 days", "n": 92, "pct": 33.3}, {
+                        "label": "0.25\u20131 day",
+                        "n": 0,
+                        "pct": 0.0
+                    }, {"label": "1+ days", "n": 0, "pct": 0.0}]
+                }
+            }
+        }, "30% Delay": {
+            "Stable": {
+                "Lean": {
+                    "total": 276,
+                    "bands": [{"label": "0 days", "n": 0, "pct": 0.0}, {
+                        "label": "0\u20130.05 days",
+                        "n": 184,
+                        "pct": 66.7
+                    }, {"label": "0.05\u20130.25 days", "n": 0, "pct": 0.0}, {
+                        "label": "0.25\u20131 day",
+                        "n": 92,
+                        "pct": 33.3
+                    }, {"label": "1+ days", "n": 0, "pct": 0.0}]
+                },
+                "Balanced": {
+                    "total": 6808,
+                    "bands": [{"label": "0 days", "n": 2116, "pct": 31.1}, {
+                        "label": "0\u20130.05 days",
+                        "n": 3680,
+                        "pct": 54.1
+                    }, {"label": "0.05\u20130.25 days", "n": 736, "pct": 10.8}, {
+                        "label": "0.25\u20131 day",
+                        "n": 276,
+                        "pct": 4.1
+                    }, {"label": "1+ days", "n": 0, "pct": 0.0}]
+                },
+                "High Service": {
+                    "total": 276,
+                    "bands": [{"label": "0 days", "n": 92, "pct": 33.3}, {
+                        "label": "0\u20130.05 days",
+                        "n": 92,
+                        "pct": 33.3
+                    }, {"label": "0.05\u20130.25 days", "n": 92, "pct": 33.3}, {
+                        "label": "0.25\u20131 day",
+                        "n": 0,
+                        "pct": 0.0
+                    }, {"label": "1+ days", "n": 0, "pct": 0.0}]
+                }
+            },
+            "Moderate": {
+                "Lean": {
+                    "total": 276,
+                    "bands": [{"label": "0 days", "n": 0, "pct": 0.0}, {
+                        "label": "0\u20130.05 days",
+                        "n": 92,
+                        "pct": 33.3
+                    }, {"label": "0.05\u20130.25 days", "n": 92, "pct": 33.3}, {
+                        "label": "0.25\u20131 day",
+                        "n": 92,
+                        "pct": 33.3
+                    }, {"label": "1+ days", "n": 0, "pct": 0.0}]
+                },
+                "Balanced": {
+                    "total": 6808,
+                    "bands": [{"label": "0 days", "n": 460, "pct": 6.8}, {
+                        "label": "0\u20130.05 days",
+                        "n": 644,
+                        "pct": 9.5
+                    }, {"label": "0.05\u20130.25 days", "n": 1748, "pct": 25.7}, {
+                        "label": "0.25\u20131 day",
+                        "n": 2944,
+                        "pct": 43.2
+                    }, {"label": "1+ days", "n": 1012, "pct": 14.9}]
+                },
+                "High Service": {
+                    "total": 276,
+                    "bands": [{"label": "0 days", "n": 0, "pct": 0.0}, {
+                        "label": "0\u20130.05 days",
+                        "n": 92,
+                        "pct": 33.3
+                    }, {"label": "0.05\u20130.25 days", "n": 184, "pct": 66.7}, {
+                        "label": "0.25\u20131 day",
+                        "n": 0,
+                        "pct": 0.0
+                    }, {"label": "1+ days", "n": 0, "pct": 0.0}]
+                }
+            },
+            "Spiky": {
+                "Lean": {
+                    "total": 276,
+                    "bands": [{"label": "0 days", "n": 0, "pct": 0.0}, {
+                        "label": "0\u20130.05 days",
+                        "n": 184,
+                        "pct": 66.7
+                    }, {"label": "0.05\u20130.25 days", "n": 0, "pct": 0.0}, {
+                        "label": "0.25\u20131 day",
+                        "n": 92,
+                        "pct": 33.3
+                    }, {"label": "1+ days", "n": 0, "pct": 0.0}]
+                },
+                "Balanced": {
+                    "total": 6808,
+                    "bands": [{"label": "0 days", "n": 736, "pct": 10.8}, {
+                        "label": "0\u20130.05 days",
+                        "n": 2668,
+                        "pct": 39.2
+                    }, {"label": "0.05\u20130.25 days", "n": 1104, "pct": 16.2}, {
+                        "label": "0.25\u20131 day",
+                        "n": 1380,
+                        "pct": 20.3
+                    }, {"label": "1+ days", "n": 920, "pct": 13.5}]
+                },
+                "High Service": {
+                    "total": 276,
+                    "bands": [{"label": "0 days", "n": 0, "pct": 0.0}, {
+                        "label": "0\u20130.05 days",
+                        "n": 184,
+                        "pct": 66.7
+                    }, {"label": "0.05\u20130.25 days", "n": 92, "pct": 33.3}, {
+                        "label": "0.25\u20131 day",
+                        "n": 0,
+                        "pct": 0.0
+                    }, {"label": "1+ days", "n": 0, "pct": 0.0}]
+                }
+            }
+        }
+    };
+
     const mmState = {leadTime: "15% Delay", demand: "Moderate", policy: "Balanced"};
 
     function fmtDollars(n) {
@@ -3022,6 +3400,33 @@
         <span class="lb-val">${fmtDollars(row.value)}</span>
       </div>
     `).join('');
+
+        renderStockoutDist();
+    }
+
+    // ===== Stockout-Day Risk Distribution (aggregate, scenario-driven) =====
+    const BAND_COLORS = ['#27AE60', '#6FCF97', '#F2C94C', '#E0703C', '#CC0033'];
+
+    function renderStockoutDist() {
+        const {leadTime, demand, policy} = mmState;
+        const dist = STOCKOUT_DIST[leadTime][demand][policy];
+        const wrap = document.getElementById('stockoutDistWrap');
+        const maxPct = Math.max(1, ...dist.bands.map(b => b.pct));
+        wrap.innerHTML = dist.bands.map((b, idx) => `
+      <div class="storage-bar-row">
+        <span class="label" style="width:120px">${b.label}</span>
+        <div class="storage-bar-track"><div class="storage-bar-fill" style="width:${(b.pct / maxPct) * 100}%;background:${BAND_COLORS[idx]}"></div></div>
+        <span class="n" style="width:64px">${b.pct}%</span>
+      </div>
+    `).join('');
+
+        const isFlat = (policy === 'Lean' || policy === 'High Service');
+        const caveatEl = document.getElementById('stockoutDistCaveat');
+        if (isFlat) {
+            caveatEl.innerHTML = `Note: under the <strong>${policy}</strong> policy, the export splits every result into equal-sized bands regardless of item — the same broken-measure pattern flagged below. Treat this shape as an artifact, not a real risk profile.`;
+        } else {
+            caveatEl.innerHTML = `Based on ${dist.total.toLocaleString()} exported result rows for this scenario. Percentages are directional — the export's item-level attribution is unreliable (see note below), so treat this as an approximate shape rather than an exact measurement.`;
+        }
     }
 
     ['mmLeadTimeRow', 'mmDemandRow', 'mmPolicyRow'].forEach(rowId => {
@@ -3380,6 +3785,7 @@
     });
 
     renderAll();
+
 </script>
 
 </body>
